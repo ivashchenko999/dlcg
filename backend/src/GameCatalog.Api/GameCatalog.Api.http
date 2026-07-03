@@ -1,6 +1,44 @@
-@GameCatalog.Api_HostAddress = http://localhost:5161
+@host = http://localhost:5161
 
-GET {{GameCatalog.Api_HostAddress}}/weatherforecast/
+### List all games
+GET {{host}}/api/games
 Accept: application/json
 
-###
+### Search games by title
+GET {{host}}/api/games?search=witcher
+Accept: application/json
+
+### Get a single game
+GET {{host}}/api/games/1
+Accept: application/json
+
+### Create a game
+POST {{host}}/api/games
+Content-Type: application/json
+
+{
+  "title": "Elden Ring",
+  "developer": "FromSoftware",
+  "releaseDate": "2022-02-25",
+  "price": 69.99,
+  "genreId": 3
+}
+
+### Update a game
+PUT {{host}}/api/games/1
+Content-Type: application/json
+
+{
+  "title": "The Witcher 3: Wild Hunt",
+  "developer": "CD Projekt Red",
+  "releaseDate": "2015-05-19",
+  "price": 39.99,
+  "genreId": 3
+}
+
+### Delete a game
+DELETE {{host}}/api/games/1
+
+### List genres
+GET {{host}}/api/genres
+Accept: application/json
