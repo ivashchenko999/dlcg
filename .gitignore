@@ -1,0 +1,29 @@
+# .NET
+backend/**/bin/
+backend/**/obj/
+*.user
+*.suo
+.vs/
+[Dd]ebug/
+[Rr]elease/
+TestResults/
+*.coverage
+appsettings.*.local.json
+
+# Node / Angular
+node_modules/
+frontend/dist/
+frontend/.angular/
+npm-debug.log*
+yarn-error.log
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# OS
+.DS_Store
+Thumbs.db
