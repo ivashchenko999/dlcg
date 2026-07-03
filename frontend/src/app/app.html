@@ -7,3 +7,16 @@
 <main class="container py-4">
   <router-outlet />
 </main>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  @for (toast of toastService.toasts(); track toast) {
+    <ngb-toast
+      [class]="toast.classname"
+      [autohide]="true"
+      [delay]="3000"
+      (hidden)="toastService.remove(toast)"
+    >
+      {{ toast.message }}
+    </ngb-toast>
+  }
+</div>
