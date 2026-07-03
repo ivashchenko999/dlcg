@@ -1,0 +1,79 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Games</h1>
+  <a routerLink="/games/new" class="btn btn-primary">Add game</a>
+</div>
+
+<input
+  type="search"
+  class="form-control mb-3"
+  placeholder="Search by title…"
+  aria-label="Search by title"
+  [formControl]="search"
+/>
+
+@if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <div class="text-center py-5">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading…</span>
+    </div>
+  </div>
+} @else if (games().length === 0) {
+  <p class="text-muted">No games found.</p>
+} @else {
+  <table class="table table-striped table-hover align-middle">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Genre</th>
+        <th>Developer</th>
+        <th>Released</th>
+        <th class="text-end">Price</th>
+        <th class="text-end">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (game of pagedGames(); track game.id) {
+        <tr>
+          <td>{{ game.title }}</td>
+          <td><span class="badge text-bg-secondary">{{ game.genreName }}</span></td>
+          <td>{{ game.developer }}</td>
+          <td>{{ game.releaseDate | date }}</td>
+          <td class="text-end">{{ game.price | currency }}</td>
+          <td class="text-end">
+            <a [routerLink]="['/games', game.id, 'edit']" class="btn btn-sm btn-outline-primary me-2">Edit</a>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="confirmDelete(deleteModal, game)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  @if (games().length > pageSize) {
+    <ngb-pagination
+      [collectionSize]="games().length"
+      [pageSize]="pageSize"
+      [page]="page()"
+      (pageChange)="page.set($event)"
+    />
+  }
+}
+
+<ng-template #deleteModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Delete game</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete <strong>{{ pendingDelete?.title }}</strong>?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+    <button type="button" class="btn btn-danger" (click)="modal.close()">Delete</button>
+  </div>
+</ng-template>
