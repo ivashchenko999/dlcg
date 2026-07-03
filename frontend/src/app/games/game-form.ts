@@ -1,19 +1,24 @@
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { NgbDateAdapter, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 
 import { GameApi } from '../core/game-api';
+import { IsoStringDateAdapter } from '../core/iso-date-adapter';
 import { Genre, SaveGameRequest } from '../core/models';
+import { ToastService } from '../core/toast.service';
 
 @Component({
   selector: 'app-game-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, NgbInputDatepicker],
+  providers: [{ provide: NgbDateAdapter, useClass: IsoStringDateAdapter }],
   templateUrl: './game-form.html',
 })
 export class GameForm implements OnInit {
   private readonly api = inject(GameApi);
   private readonly router = inject(Router);
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly toasts = inject(ToastService);
 
   /** Route parameter, bound by the router (withComponentInputBinding). */
   readonly id = input<string>();
@@ -69,7 +74,10 @@ export class GameForm implements OnInit {
     const id = this.gameId();
     const save$ = id === null ? this.api.createGame(request) : this.api.updateGame(id, request);
     save$.subscribe({
-      next: () => this.router.navigate(['/games']),
+      next: (game) => {
+        this.toasts.success(`"${game.title}" was ${id === null ? 'created' : 'updated'}.`);
+        this.router.navigate(['/games']);
+      },
       error: () => {
         this.error.set('Failed to save the game. Please try again.');
         this.saving.set(false);
