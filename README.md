@@ -1,36 +1,63 @@
 # Video Game Catalogue
 
-A simple two-page catalogue for video games: a browsing page and an editing page.
+A simple two-page catalogue for video games: a browsing page (search, pagination, delete) and a create/edit page.
 
 ## Tech Stack
 
 | Layer    | Technology |
 |----------|------------|
 | Backend  | ASP.NET Core Web API (.NET 10), EF Core (SQL Server, Code First) |
-| Frontend | Angular (latest), Angular Router, ng-bootstrap |
-| Tests    | xUnit |
+| Frontend | Angular 22, Angular Router, ng-bootstrap / Bootstrap 5 |
+| Tests    | xUnit + EF Core on in-memory SQLite |
 
 ## Repository Layout
 
 ```
-backend/    ASP.NET Core Web API + unit tests
-frontend/   Angular application
+backend/
+  src/GameCatalog.Api/          ASP.NET Core Web API
+  tests/GameCatalog.Api.Tests/  unit tests
+frontend/                       Angular application
 ```
 
-## Getting Started
+## Prerequisites
 
-> Detailed setup instructions will be completed as the project takes shape.
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- [Node.js](https://nodejs.org) 20+
+- SQL Server — any edition:
+  - **Windows:** SQL Server Express (the default connection string targets `.\SQLEXPRESS`)
+  - **macOS/Linux:** run it in Docker:
 
-### Backend
+    ```bash
+    docker run -d --name gamecatalog-sql \
+      -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD=DevPassword_123 \
+      -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+    ```
+
+## Running the Backend
 
 ```bash
 cd backend
 dotnet run --project src/GameCatalog.Api
 ```
 
-The API applies EF Core migrations and seeds sample data on startup.
+On startup (Development environment) the API applies EF Core migrations and seeds sample data, so no manual database setup is needed.
 
-### Frontend
+- API base URL: `http://localhost:5161`
+- Swagger UI: `http://localhost:5161/swagger`
+
+### Connection string
+
+The default connection string (in `appsettings.json`) targets `.\SQLEXPRESS` with Windows authentication. To point elsewhere without touching tracked files, create `src/GameCatalog.Api/appsettings.Local.json` (gitignored):
+
+```json
+{
+  "ConnectionStrings": {
+    "GameCatalog": "Server=localhost,1433;Database=GameCatalog;User Id=sa;Password=DevPassword_123;TrustServerCertificate=True"
+  }
+}
+```
+
+## Running the Frontend
 
 ```bash
 cd frontend
@@ -38,9 +65,24 @@ npm install
 npm start
 ```
 
-### Tests
+Open `http://localhost:4200`. The dev server proxies `/api` requests to the backend (see `proxy.conf.json`), so no CORS or environment configuration is needed.
+
+## Running the Tests
 
 ```bash
 cd backend
 dotnet test
 ```
+
+Unit tests cover the service layer and run against an in-memory SQLite database, so they execute real SQL without requiring a SQL Server instance.
+
+## API Overview
+
+| Method | Route                  | Description |
+|--------|------------------------|-------------|
+| GET    | `/api/games?search=`   | List games, optionally filtered by title |
+| GET    | `/api/games/{id}`      | Get a single game |
+| POST   | `/api/games`           | Create a game |
+| PUT    | `/api/games/{id}`      | Update a game |
+| DELETE | `/api/games/{id}`      | Delete a game |
+| GET    | `/api/genres`          | List genres (for the edit form dropdown) |
