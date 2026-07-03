@@ -1,59 +1,92 @@
-# GameCatalog
+# Frontend Domain
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.5.
+The frontend is the Angular 22 client for **Video Game Catalogue**. It owns presentation,
+navigation, browser state, client-side validation, and communication with the backend API.
 
-## Development server
+For complete installation instructions, see the [repository README](../README.md).
 
-To start a local development server, run:
+## Runtime and Tooling
 
-```bash
-ng serve
+- Angular 22 with standalone components
+- TypeScript 6 with strict compiler settings
+- Angular Router with lazy-loaded routes
+- Angular Reactive Forms
+- Angular Signals for local view state
+- RxJS for asynchronous request orchestration
+- Bootstrap 5 and ng-bootstrap
+- Vitest through the Angular test builder
+
+## Application Structure
+
+```text
+src/app/
+├── core/       Infrastructure used across the application
+├── features/   Routable product capabilities
+├── shared/     Reusable UI, models, constants, and utilities
+├── app.ts      Root application shell
+├── app.html    Global navigation and route outlet
+├── app.config.ts
+└── app.routes.ts
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+More detailed documentation is located next to each architectural area:
 
-## Code scaffolding
+- [`core/README.md`](src/app/core/README.md)
+- [`features/README.md`](src/app/features/README.md)
+- [`features/games/README.md`](src/app/features/games/README.md)
+- [`shared/README.md`](src/app/shared/README.md)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Dependency Direction
+
+- The application shell composes routes, global services, and shared presentation.
+- Features may depend on `core` and `shared`.
+- `core` must not depend on a feature.
+- `shared` must not depend on a feature.
+- Feature-specific behaviour stays inside its feature instead of being promoted prematurely.
+
+Cross-layer imports use `@core/*` and `@shared/*`. Relative imports are preferred inside a
+single feature because they keep that feature movable.
+
+## State Management
+
+No global state library is required for the current application size:
+
+- Signals hold component-local state.
+- The router query string is the source of truth for catalogue filters, sorting, and paging.
+- Reactive Forms own editable form state.
+- `ToastService` owns short-lived application notifications.
+- Backend data remains server-authoritative and is not duplicated into a client store.
+
+This keeps state ownership explicit while preserving shareable URLs and browser navigation.
+
+## API Boundary
+
+`GameApi` is the only class that constructs backend URLs. Components receive typed observables
+and do not use `HttpClient` directly. The paginated catalogue response is checked at runtime so
+an incompatible backend response becomes an explicit error rather than corrupting view state.
+
+During development, `proxy.conf.json` forwards `/api` to `http://localhost:5161`.
+
+## Commands
 
 ```bash
-ng generate component component-name
+npm ci
+npm start
+npm run build
+npm test -- --watch=false
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+The production build uses bundle budgets configured in `angular.json`.
 
-```bash
-ng generate --help
-```
+## Review Checklist
 
-## Building
+When adding frontend code, verify that:
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- a feature owns its domain-specific components and state;
+- reusable code is genuinely feature-independent before moving it to `shared`;
+- route-visible state is represented in the URL when appropriate;
+- subscriptions are finite or tied to component destruction;
+- loading, empty, error, and success states are handled;
+- forms have matching frontend and backend validation;
+- interactive controls remain keyboard and screen-reader accessible;
+- new behaviour has a focused test.
