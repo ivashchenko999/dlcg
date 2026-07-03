@@ -8,7 +8,7 @@ backend/**/obj/
 [Rr]elease/
 TestResults/
 *.coverage
-appsettings.*.local.json
+appsettings.Local.json
 
 # Node / Angular
 node_modules/
