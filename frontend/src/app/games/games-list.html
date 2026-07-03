@@ -38,18 +38,10 @@
       </div>
     </div>
 
-    @if (error()) {
-      <div class="alert alert-danger d-flex align-items-center">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error() }}
-      </div>
-    }
+    <app-error-alert [message]="error()" />
 
     @if (loading()) {
-      <div class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading…</span>
-        </div>
-      </div>
+      <app-loading-spinner />
     } @else if (filteredGames().length === 0) {
       <div class="text-center py-5 text-body-secondary">
         <i class="bi bi-controller display-3"></i>

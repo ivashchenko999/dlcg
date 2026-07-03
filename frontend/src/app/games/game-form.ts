@@ -7,10 +7,12 @@ import { GameApi } from '../core/game-api';
 import { IsoStringDateAdapter } from '../core/iso-date-adapter';
 import { Genre, SaveGameRequest } from '../core/models';
 import { ToastService } from '../core/toast.service';
+import { ErrorAlert } from '../shared/error-alert';
+import { LoadingSpinner } from '../shared/loading-spinner';
 
 @Component({
   selector: 'app-game-form',
-  imports: [ReactiveFormsModule, RouterLink, NgbInputDatepicker],
+  imports: [ReactiveFormsModule, RouterLink, NgbInputDatepicker, ErrorAlert, LoadingSpinner],
   providers: [{ provide: NgbDateAdapter, useClass: IsoStringDateAdapter }],
   templateUrl: './game-form.html',
 })

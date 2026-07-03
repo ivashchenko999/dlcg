@@ -9,10 +9,21 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { GameApi } from '../core/game-api';
 import { Game } from '../core/models';
 import { ToastService } from '../core/toast.service';
+import { ErrorAlert } from '../shared/error-alert';
+import { LoadingSpinner } from '../shared/loading-spinner';
 
 @Component({
   selector: 'app-games-list',
-  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, RouterLink, NgbPagination, NgbTooltip],
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    ReactiveFormsModule,
+    RouterLink,
+    NgbPagination,
+    NgbTooltip,
+    ErrorAlert,
+    LoadingSpinner,
+  ],
   templateUrl: './games-list.html',
 })
 export class GamesList {

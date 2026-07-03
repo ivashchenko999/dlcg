@@ -12,18 +12,10 @@
         </h1>
       </div>
       <div class="card-body">
-        @if (error()) {
-          <div class="alert alert-danger d-flex align-items-center">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error() }}
-          </div>
-        }
+        <app-error-alert [message]="error()" />
 
         @if (loading()) {
-          <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading…</span>
-            </div>
-          </div>
+          <app-loading-spinner />
         } @else {
           <form [formGroup]="form" (ngSubmit)="save()">
             <div class="mb-3">
