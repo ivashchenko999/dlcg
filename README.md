@@ -69,12 +69,21 @@ Open `http://localhost:4200`. The dev server proxies `/api` requests to the back
 
 ## Running the Tests
 
+Backend (xUnit — service layer against an in-memory SQLite database, so real SQL runs without a SQL Server instance):
+
 ```bash
 cd backend
 dotnet test
 ```
 
-Unit tests cover the service layer and run against an in-memory SQLite database, so they execute real SQL without requiring a SQL Server instance.
+Frontend (Vitest — API service, toast service and date adapter):
+
+```bash
+cd frontend
+npm test
+```
+
+Both suites also run in CI on every push (see `.github/workflows/ci.yml`).
 
 ## API Overview
 
