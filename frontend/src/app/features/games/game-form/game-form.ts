@@ -33,8 +33,8 @@ export class GameForm implements OnInit {
   protected readonly error = signal<string | null>(null);
 
   protected readonly form = this.fb.group({
-    title: ['', [Validators.required, Validators.maxLength(200)]],
-    developer: ['', [Validators.required, Validators.maxLength(200)]],
+    title: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(200)]],
+    developer: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(200)]],
     releaseDate: ['', Validators.required],
     price: [0, [Validators.required, Validators.min(0), Validators.max(10000)]],
     genreId: this.fb.control<number | null>(null, Validators.required),

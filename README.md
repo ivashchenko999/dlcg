@@ -89,9 +89,19 @@ Both suites also run in CI on every push (see `.github/workflows/ci.yml`).
 
 | Method | Route                  | Description |
 |--------|------------------------|-------------|
-| GET    | `/api/games?search=`   | List games, optionally filtered by title |
+| GET    | `/api/games`           | Search, filter, sort and paginate games  |
 | GET    | `/api/games/{id}`      | Get a single game |
 | POST   | `/api/games`           | Create a game |
 | PUT    | `/api/games/{id}`      | Update a game |
 | DELETE | `/api/games/{id}`      | Delete a game |
 | GET    | `/api/genres`          | List genres (for the edit form dropdown) |
+
+The games endpoint accepts `search`, `genre`, `sort`, `order`, `page`, and
+`pageSize` query parameters. For example:
+
+```text
+GET /api/games?genre=RPG&sort=price&order=desc&page=1&pageSize=10
+```
+
+Supported sort fields are `title`, `genre`, `developer`, `releaseDate`, and
+`price`. The response includes `items`, `totalCount`, `page`, and `pageSize`.

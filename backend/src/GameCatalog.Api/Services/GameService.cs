@@ -12,21 +12,35 @@ public class GameService(GameCatalogDbContext db) : IGameService
     private static readonly Expression<Func<Game, GameDto>> AsGameDto =
         g => new GameDto(g.Id, g.Title, g.Developer, g.ReleaseDate, g.Price, g.GenreId, g.Genre!.Name);
 
-    public async Task<IReadOnlyList<GameDto>> GetAllAsync(string? search = null, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<GameDto>> GetAllAsync(
+        GameQuery request,
+        CancellationToken cancellationToken = default)
     {
         IQueryable<Game> query = db.Games.AsNoTracking();
 
-        if (!string.IsNullOrWhiteSpace(search))
+        if (!string.IsNullOrWhiteSpace(request.Search))
         {
             // ToLower makes the search case-insensitive regardless of database collation.
-            var pattern = search.Trim().ToLower();
+            var pattern = request.Search.Trim().ToLower();
             query = query.Where(g => g.Title.ToLower().Contains(pattern));
         }
 
-        return await query
-            .OrderBy(g => g.Title)
+        if (!string.IsNullOrWhiteSpace(request.Genre))
+        {
+            var genre = request.Genre.Trim().ToLower();
+            query = query.Where(g => g.Genre!.Name.ToLower() == genre);
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        query = ApplySorting(query, request.Sort, request.Order);
+
+        var items = await query
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
             .Select(AsGameDto)
             .ToListAsync(cancellationToken);
+
+        return new PagedResult<GameDto>(items, totalCount, request.Page, request.PageSize);
     }
 
     public async Task<GameDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
@@ -43,7 +57,7 @@ public class GameService(GameCatalogDbContext db) : IGameService
         {
             Title = request.Title.Trim(),
             Developer = request.Developer.Trim(),
-            ReleaseDate = request.ReleaseDate,
+            ReleaseDate = request.ReleaseDate!.Value,
             Price = request.Price,
             GenreId = request.GenreId,
         };
@@ -66,7 +80,7 @@ public class GameService(GameCatalogDbContext db) : IGameService
 
         game.Title = request.Title.Trim();
         game.Developer = request.Developer.Trim();
-        game.ReleaseDate = request.ReleaseDate;
+        game.ReleaseDate = request.ReleaseDate!.Value;
         game.Price = request.Price;
         game.GenreId = request.GenreId;
 
@@ -85,4 +99,22 @@ public class GameService(GameCatalogDbContext db) : IGameService
             throw new UnknownGenreException(genreId);
         }
     }
+
+    private static IOrderedQueryable<Game> ApplySorting(
+        IQueryable<Game> query,
+        GameSortField sort,
+        SortDirection direction) =>
+        (sort, direction) switch
+        {
+            (GameSortField.Genre, SortDirection.Asc) => query.OrderBy(g => g.Genre!.Name).ThenBy(g => g.Title).ThenBy(g => g.Id),
+            (GameSortField.Genre, SortDirection.Desc) => query.OrderByDescending(g => g.Genre!.Name).ThenBy(g => g.Title).ThenBy(g => g.Id),
+            (GameSortField.Developer, SortDirection.Asc) => query.OrderBy(g => g.Developer).ThenBy(g => g.Title).ThenBy(g => g.Id),
+            (GameSortField.Developer, SortDirection.Desc) => query.OrderByDescending(g => g.Developer).ThenBy(g => g.Title).ThenBy(g => g.Id),
+            (GameSortField.ReleaseDate, SortDirection.Asc) => query.OrderBy(g => g.ReleaseDate).ThenBy(g => g.Title).ThenBy(g => g.Id),
+            (GameSortField.ReleaseDate, SortDirection.Desc) => query.OrderByDescending(g => g.ReleaseDate).ThenBy(g => g.Title).ThenBy(g => g.Id),
+            (GameSortField.Price, SortDirection.Asc) => query.OrderBy(g => g.Price).ThenBy(g => g.Title).ThenBy(g => g.Id),
+            (GameSortField.Price, SortDirection.Desc) => query.OrderByDescending(g => g.Price).ThenBy(g => g.Title).ThenBy(g => g.Id),
+            (GameSortField.Title, SortDirection.Desc) => query.OrderByDescending(g => g.Title).ThenBy(g => g.Id),
+            _ => query.OrderBy(g => g.Title).ThenBy(g => g.Id),
+        };
 }

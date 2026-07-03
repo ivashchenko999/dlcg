@@ -4,8 +4,7 @@ namespace GameCatalog.Api.Services;
 
 public interface IGameService
 {
-    /// <param name="search">Optional case-insensitive filter on the game title.</param>
-    Task<IReadOnlyList<GameDto>> GetAllAsync(string? search = null, CancellationToken cancellationToken = default);
+    Task<PagedResult<GameDto>> GetAllAsync(GameQuery query, CancellationToken cancellationToken = default);
 
     Task<GameDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 

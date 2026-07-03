@@ -14,11 +14,12 @@ public class SaveGameRequest
     public string Developer { get; set; } = string.Empty;
 
     [Required]
-    public DateOnly ReleaseDate { get; set; }
+    public DateOnly? ReleaseDate { get; set; }
 
     [Range(0, 10000)]
     public decimal Price { get; set; }
 
     [Range(1, int.MaxValue)]
     public int GenreId { get; set; }
+
 }

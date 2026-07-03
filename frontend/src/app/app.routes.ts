@@ -6,5 +6,10 @@ export const routes: Routes = [
     path: 'games',
     loadChildren: () => import('./features/games/games.routes').then((m) => m.GAMES_ROUTES),
   },
-  { path: '**', redirectTo: 'games' },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./features/not-found/not-found').then((component) => component.NotFound),
+    title: 'Page not found',
+  },
 ];

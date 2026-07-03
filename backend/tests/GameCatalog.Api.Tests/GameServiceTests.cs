@@ -21,9 +21,10 @@ public class GameServiceTests : IDisposable
             new Game { Title = "Anno 1800", Developer = "Ubisoft", GenreId = ActionGenreId });
         var service = CreateService();
 
-        var games = await service.GetAllAsync();
+        var result = await service.GetAllAsync(new GameQuery());
 
-        Assert.Equal(["Anno 1800", "Zelda"], games.Select(g => g.Title));
+        Assert.Equal(["Anno 1800", "Zelda"], result.Items.Select(g => g.Title));
+        Assert.Equal(2, result.TotalCount);
     }
 
     [Fact]
@@ -34,10 +35,65 @@ public class GameServiceTests : IDisposable
             new Game { Title = "Hades", Developer = "Supergiant", GenreId = ActionGenreId });
         var service = CreateService();
 
-        var games = await service.GetAllAsync(search: "witch");
+        var result = await service.GetAllAsync(new GameQuery { Search = "witch" });
 
-        var game = Assert.Single(games);
+        var game = Assert.Single(result.Items);
         Assert.Equal("The Witcher 3", game.Title);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_FiltersByGenreBeforePaging()
+    {
+        await AddGamesAsync(
+            new Game { Title = "Hades", Developer = "Supergiant", GenreId = ActionGenreId },
+            new Game { Title = "The Witcher 3", Developer = "CDPR", GenreId = RpgGenreId });
+        var service = CreateService();
+
+        var result = await service.GetAllAsync(new GameQuery { Genre = "rpg", PageSize = 1 });
+
+        var game = Assert.Single(result.Items);
+        Assert.Equal("The Witcher 3", game.Title);
+        Assert.Equal(1, result.TotalCount);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_SortsByPriceDescendingAndReturnsRequestedPage()
+    {
+        await AddGamesAsync(
+            new Game { Title = "Budget", Developer = "A", Price = 10m, GenreId = ActionGenreId },
+            new Game { Title = "Premium", Developer = "B", Price = 60m, GenreId = ActionGenreId },
+            new Game { Title = "Standard", Developer = "C", Price = 30m, GenreId = ActionGenreId });
+        var service = CreateService();
+
+        var result = await service.GetAllAsync(new GameQuery
+        {
+            Sort = GameSortField.Price,
+            Order = SortDirection.Desc,
+            Page = 2,
+            PageSize = 1,
+        });
+
+        var game = Assert.Single(result.Items);
+        Assert.Equal("Standard", game.Title);
+        Assert.Equal(3, result.TotalCount);
+        Assert.Equal(2, result.Page);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_UsesIdAsStableSortTieBreaker()
+    {
+        var seeded = await AddGamesAsync(
+            new Game { Title = "Same", Developer = "Studio", Price = 20m, GenreId = ActionGenreId },
+            new Game { Title = "Same", Developer = "Studio", Price = 20m, GenreId = ActionGenreId });
+        var service = CreateService();
+
+        var result = await service.GetAllAsync(new GameQuery
+        {
+            Sort = GameSortField.Price,
+            PageSize = 10,
+        });
+
+        Assert.Equal(seeded.Select(game => game.Id), result.Items.Select(game => game.Id));
     }
 
     [Fact]

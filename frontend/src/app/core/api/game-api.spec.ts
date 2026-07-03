@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { GameApi } from './game-api';
+import { GameQuery, PagedGames } from '@shared/models/game-query.model';
 import { Game, SaveGameRequest } from '@shared/models/game.model';
 
 describe('GameApi', () => {
@@ -18,6 +19,15 @@ describe('GameApi', () => {
     genreId: 1,
     genreName: 'Action',
   };
+  const query: GameQuery = {
+    search: '',
+    genre: '',
+    sort: 'title',
+    order: 'asc',
+    page: 1,
+    pageSize: 10,
+  };
+  const page: PagedGames = { items: [sampleGame], totalCount: 1, page: 1, pageSize: 10 };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -29,23 +39,36 @@ describe('GameApi', () => {
 
   afterEach(() => http.verify());
 
-  it('requests all games without a search parameter', () => {
-    let result: Game[] | undefined;
-    api.getGames().subscribe((games) => (result = games));
+  it('passes paging and sorting parameters', () => {
+    let result: PagedGames | undefined;
+    api.getGames(query).subscribe((games) => (result = games));
 
-    const req = http.expectOne('/api/games');
+    const req = http.expectOne('/api/games?sort=title&order=asc&page=1&pageSize=10');
     expect(req.request.method).toBe('GET');
-    req.flush([sampleGame]);
+    req.flush(page);
 
-    expect(result).toEqual([sampleGame]);
+    expect(result).toEqual(page);
   });
 
-  it('passes a trimmed search term as a query parameter', () => {
-    api.getGames('  witcher  ').subscribe();
+  it('passes search and genre filters as query parameters', () => {
+    api.getGames({ ...query, search: 'witcher', genre: 'RPG' }).subscribe();
 
-    const req = http.expectOne('/api/games?search=witcher');
+    const req = http.expectOne(
+      '/api/games?sort=title&order=asc&page=1&pageSize=10&search=witcher&genre=RPG',
+    );
     expect(req.request.params.get('search')).toBe('witcher');
-    req.flush([]);
+    expect(req.request.params.get('genre')).toBe('RPG');
+    req.flush({ ...page, items: [] });
+  });
+
+  it('rejects the legacy array response instead of leaving the UI in a broken state', () => {
+    const error = vi.fn();
+    api.getGames(query).subscribe({ error });
+
+    const req = http.expectOne('/api/games?sort=title&order=asc&page=1&pageSize=10');
+    req.flush([sampleGame]);
+
+    expect(error).toHaveBeenCalledOnce();
   });
 
   it('posts the payload when creating a game', () => {

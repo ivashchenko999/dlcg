@@ -7,7 +7,11 @@
     <div class="card shadow-sm">
       <div class="card-header py-3">
         <h1 class="h4 mb-0">
-          <i class="bi me-2" [class.bi-pencil-square]="isEdit()" [class.bi-plus-circle]="!isEdit()"></i>
+          <i
+            class="bi me-2"
+            [class.bi-pencil-square]="isEdit()"
+            [class.bi-plus-circle]="!isEdit()"
+          ></i>
           {{ isEdit() ? 'Edit game' : 'New game' }}
         </h1>
       </div>
@@ -104,7 +108,7 @@
             </div>
 
             <div class="d-flex gap-2 mt-2">
-              <button type="submit" class="btn btn-primary" [disabled]="saving()">
+              <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()">
                 @if (saving()) {
                   <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
                 } @else {

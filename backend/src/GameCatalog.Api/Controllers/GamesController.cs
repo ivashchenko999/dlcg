@@ -9,8 +9,8 @@ namespace GameCatalog.Api.Controllers;
 public class GamesController(IGameService gameService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IReadOnlyList<GameDto>> GetAll([FromQuery] string? search, CancellationToken cancellationToken) =>
-        await gameService.GetAllAsync(search, cancellationToken);
+    public async Task<PagedResult<GameDto>> GetAll([FromQuery] GameQuery query, CancellationToken cancellationToken) =>
+        await gameService.GetAllAsync(query, cancellationToken);
 
     [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
