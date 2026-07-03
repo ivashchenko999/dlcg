@@ -1,6 +1,8 @@
 <nav class="navbar navbar-expand navbar-dark bg-dark">
   <div class="container">
-    <a class="navbar-brand" routerLink="/games"><i class="bi bi-controller me-2"></i>Video Game Catalogue</a>
+    <a class="navbar-brand" routerLink="/games"
+      ><i class="bi bi-controller me-2"></i>Video Game Catalogue</a
+    >
   </div>
 </nav>
 
@@ -8,15 +10,4 @@
   <router-outlet />
 </main>
 
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-  @for (toast of toastService.toasts(); track toast) {
-    <ngb-toast
-      [class]="toast.classname"
-      [autohide]="true"
-      [delay]="3000"
-      (hidden)="toastService.remove(toast)"
-    >
-      {{ toast.message }}
-    </ngb-toast>
-  }
-</div>
+<app-toast-container />

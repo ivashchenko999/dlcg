@@ -1,4 +1,4 @@
-import { Component, TemplateRef, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -6,11 +6,13 @@ import { RouterLink } from '@angular/router';
 import { NgbModal, NgbPagination, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { GameApi } from '../core/game-api';
-import { Game } from '../core/models';
-import { ToastService } from '../core/toast.service';
-import { ErrorAlert } from '../shared/error-alert';
-import { LoadingSpinner } from '../shared/loading-spinner';
+import { GameApi } from '@core/api/game-api';
+import { ToastService } from '@core/services/toast.service';
+import { ConfirmModal } from '@shared/components/confirm-modal/confirm-modal';
+import { ErrorAlert } from '@shared/components/error-alert/error-alert';
+import { LoadingSpinner } from '@shared/components/loading-spinner/loading-spinner';
+import { PAGE_SIZE, SEARCH_DEBOUNCE_MS } from '@shared/constants/app.constants';
+import { Game } from '@shared/models/game.model';
 
 @Component({
   selector: 'app-games-list',
@@ -48,18 +50,15 @@ export class GamesList {
   });
 
   protected readonly page = signal(1);
-  protected readonly pageSize = 10;
+  protected readonly pageSize = PAGE_SIZE;
   protected readonly pagedGames = computed(() => {
     const start = (this.page() - 1) * this.pageSize;
     return this.filteredGames().slice(start, start + this.pageSize);
   });
 
-  /** Game the user is about to delete; shown in the confirmation modal. */
-  protected pendingDelete: Game | null = null;
-
   constructor() {
     this.search.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
+      .pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed())
       .subscribe(() => this.load());
     this.load();
   }
@@ -85,9 +84,13 @@ export class GamesList {
     this.page.set(1);
   }
 
-  protected confirmDelete(modal: TemplateRef<unknown>, game: Game): void {
-    this.pendingDelete = game;
-    this.modalService.open(modal).result.then(
+  protected confirmDelete(game: Game): void {
+    const modal = this.modalService.open(ConfirmModal);
+    modal.componentInstance.title = 'Delete game';
+    modal.componentInstance.message = `Are you sure you want to delete "${game.title}"? This cannot be undone.`;
+    modal.componentInstance.confirmLabel = 'Delete';
+
+    modal.result.then(
       () => this.delete(game),
       () => {}, // dismissed — nothing to do
     );

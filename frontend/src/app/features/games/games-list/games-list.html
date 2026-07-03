@@ -25,10 +25,11 @@
       </div>
       <div class="col-sm-4">
         <select
+          #genreSelect
           class="form-select"
           aria-label="Filter by genre"
           [value]="genreFilter()"
-          (change)="filterByGenre($any($event.target).value)"
+          (change)="filterByGenre(genreSelect.value)"
         >
           <option value="">All genres</option>
           @for (genre of genres(); track genre) {
@@ -67,7 +68,9 @@
             @for (game of pagedGames(); track game.id) {
               <tr>
                 <td class="fw-medium">{{ game.title }}</td>
-                <td><span class="badge rounded-pill text-bg-secondary">{{ game.genreName }}</span></td>
+                <td>
+                  <span class="badge rounded-pill text-bg-secondary">{{ game.genreName }}</span>
+                </td>
                 <td>{{ game.developer }}</td>
                 <td>{{ game.releaseDate | date }}</td>
                 <td class="text-end">{{ game.price | currency }}</td>
@@ -85,7 +88,7 @@
                     class="btn btn-sm btn-outline-danger"
                     ngbTooltip="Delete"
                     [attr.aria-label]="'Delete ' + game.title"
-                    (click)="confirmDelete(deleteModal, game)"
+                    (click)="confirmDelete(game)"
                   >
                     <i class="bi bi-trash"></i>
                   </button>
@@ -109,19 +112,3 @@
     }
   </div>
 </div>
-
-<ng-template #deleteModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title"><i class="bi bi-trash me-2"></i>Delete game</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
-  </div>
-  <div class="modal-body">
-    Are you sure you want to delete <strong>{{ pendingDelete?.title }}</strong>? This cannot be undone.
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
-    <button type="button" class="btn btn-danger" (click)="modal.close()">
-      <i class="bi bi-trash me-1"></i>Delete
-    </button>
-  </div>
-</ng-template>

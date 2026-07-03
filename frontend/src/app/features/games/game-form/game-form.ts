@@ -3,12 +3,13 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { NgbDateAdapter, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 
-import { GameApi } from '../core/game-api';
-import { IsoStringDateAdapter } from '../core/iso-date-adapter';
-import { Genre, SaveGameRequest } from '../core/models';
-import { ToastService } from '../core/toast.service';
-import { ErrorAlert } from '../shared/error-alert';
-import { LoadingSpinner } from '../shared/loading-spinner';
+import { GameApi } from '@core/api/game-api';
+import { ToastService } from '@core/services/toast.service';
+import { ErrorAlert } from '@shared/components/error-alert/error-alert';
+import { LoadingSpinner } from '@shared/components/loading-spinner/loading-spinner';
+import { Genre } from '@shared/models/genre.model';
+import { SaveGameRequest } from '@shared/models/game.model';
+import { IsoStringDateAdapter } from '@shared/utils/iso-date-adapter';
 
 @Component({
   selector: 'app-game-form',

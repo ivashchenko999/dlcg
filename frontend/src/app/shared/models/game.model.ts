@@ -9,11 +9,6 @@ export interface Game {
   genreName: string;
 }
 
-export interface Genre {
-  id: number;
-  name: string;
-}
-
 /** Payload for creating or updating a game. */
 export interface SaveGameRequest {
   title: string;

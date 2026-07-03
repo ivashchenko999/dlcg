@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { GameApi } from './game-api';
-import { Game, SaveGameRequest } from './models';
+import { Game, SaveGameRequest } from '@shared/models/game.model';
 
 describe('GameApi', () => {
   let api: GameApi;
