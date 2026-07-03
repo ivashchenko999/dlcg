@@ -18,7 +18,9 @@ public class GameService(GameCatalogDbContext db) : IGameService
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            query = query.Where(g => g.Title.Contains(search));
+            // ToLower makes the search case-insensitive regardless of database collation.
+            var pattern = search.Trim().ToLower();
+            query = query.Where(g => g.Title.ToLower().Contains(pattern));
         }
 
         return await query
