@@ -5,8 +5,7 @@
 
 **Live demo:** https://gamecatalog-ivashchenko.azurewebsites.net
 (Azure App Service + Azure SQL Database; deployed automatically from `main` by GitHub Actions.
-Hosted on free tiers — the first request after a period of inactivity may take a few seconds
-while the serverless database resumes.)
+Both run on Basic tiers with Always On enabled, so the demo responds without cold starts.)
 
 A full-stack catalogue application for browsing and maintaining video game data. The project
 combines a modern Angular frontend with a typed ASP.NET Core API, server-side filtering,
@@ -429,8 +428,11 @@ Every push to `main` also triggers the deploy workflow, which:
 3. Deploys the combined package to Azure App Service.
 4. Verifies the live application with an HTTP smoke check.
 
-The demo runs on Azure App Service with a serverless Azure SQL database, both on free tiers.
-The API serves the Angular application itself, so one site hosts the whole product:
+The demo runs on an Azure App Service Basic (B1) plan with Always On enabled and an Azure SQL
+Basic database, so neither the application nor the database pauses between requests. On
+startup the application applies pending EF Core migrations (enabled in production through the
+`Database:MigrateOnStartup` setting), which keeps deployments self-contained. The API serves
+the Angular application itself, so one site hosts the whole product:
 
 | Resource | URL |
 | --- | --- |
