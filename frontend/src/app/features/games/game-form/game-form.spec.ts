@@ -1,4 +1,4 @@
-import { FormGroup } from '@angular/forms';
+import type { FormGroup } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
@@ -25,9 +25,14 @@ describe('GameForm', () => {
     const fixture = TestBed.createComponent(GameForm);
     fixture.detectChanges();
     const component = fixture.componentInstance as unknown as { form: FormGroup };
-    const saveButton = fixture.nativeElement.querySelector(
+    const saveButton = (fixture.nativeElement as HTMLElement).querySelector(
       'button[type="submit"]',
-    ) as HTMLButtonElement;
+    );
+
+    expect(saveButton).not.toBeNull();
+    if (!(saveButton instanceof HTMLButtonElement)) {
+      throw new Error('Save button was not rendered.');
+    }
 
     expect(saveButton.disabled).toBe(true);
 

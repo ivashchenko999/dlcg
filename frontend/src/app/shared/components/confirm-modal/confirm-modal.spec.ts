@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ConfirmModal } from './confirm-modal';
@@ -25,16 +25,15 @@ describe('ConfirmModal', () => {
     component.confirmLabel = 'Delete';
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Delete game');
-    expect(fixture.nativeElement.textContent).toContain('This cannot be undone.');
-    expect(fixture.nativeElement.textContent).toContain('Delete');
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('Delete game');
+    expect(element.textContent).toContain('This cannot be undone.');
+    expect(element.textContent).toContain('Delete');
   });
 
   it('closes on confirmation and dismisses on cancellation', () => {
     fixture.detectChanges();
-    const buttons = fixture.nativeElement.querySelectorAll(
-      'button',
-    ) as NodeListOf<HTMLButtonElement>;
+    const buttons = (fixture.nativeElement as HTMLElement).querySelectorAll('button');
 
     buttons[2].click();
     buttons[1].click();

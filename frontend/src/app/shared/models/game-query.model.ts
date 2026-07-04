@@ -1,4 +1,4 @@
-import { Game } from './game.model';
+import type { Game } from './game.model';
 
 export type GameSortField = 'title' | 'genre' | 'developer' | 'releaseDate' | 'price';
 export type SortDirection = 'asc' | 'desc';

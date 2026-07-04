@@ -1,11 +1,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { type Observable, map } from 'rxjs';
 
 import { API_BASE_URL } from '@shared/constants/app.constants';
-import { GameQuery, PagedGames } from '@shared/models/game-query.model';
-import { Game, SaveGameRequest } from '@shared/models/game.model';
-import { Genre } from '@shared/models/genre.model';
+import type { GameQuery, PagedGames } from '@shared/models/game-query.model';
+import type { Game, SaveGameRequest } from '@shared/models/game.model';
+import type { Genre } from '@shared/models/genre.model';
 
 /**
  * Typed wrapper around the catalogue REST API. In development, requests to
@@ -41,7 +41,7 @@ export class GameApi {
   }
 
   getGame(id: number): Observable<Game> {
-    return this.http.get<Game>(`${API_BASE_URL}/games/${id}`);
+    return this.http.get<Game>(`${API_BASE_URL}/games/${String(id)}`);
   }
 
   createGame(request: SaveGameRequest): Observable<Game> {
@@ -49,11 +49,11 @@ export class GameApi {
   }
 
   updateGame(id: number, request: SaveGameRequest): Observable<Game> {
-    return this.http.put<Game>(`${API_BASE_URL}/games/${id}`, request);
+    return this.http.put<Game>(`${API_BASE_URL}/games/${String(id)}`, request);
   }
 
   deleteGame(id: number): Observable<void> {
-    return this.http.delete<void>(`${API_BASE_URL}/games/${id}`);
+    return this.http.delete(`${API_BASE_URL}/games/${String(id)}`).pipe(map(() => undefined));
   }
 
   getGenres(): Observable<Genre[]> {

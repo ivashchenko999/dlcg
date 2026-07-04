@@ -75,7 +75,7 @@
                   class="btn btn-sm btn-link text-body fw-semibold text-decoration-none p-0"
                   (click)="sortBy('title')"
                 >
-                  Title<i [class]="sortIcon('title')" aria-hidden="true"></i>
+                  Title<i aria-hidden="true" [class]="sortIcon('title')"></i>
                 </button>
               </th>
               <th [attr.aria-sort]="sortAria('genre')">
@@ -84,7 +84,7 @@
                   class="btn btn-sm btn-link text-body fw-semibold text-decoration-none p-0"
                   (click)="sortBy('genre')"
                 >
-                  Genre<i [class]="sortIcon('genre')" aria-hidden="true"></i>
+                  Genre<i aria-hidden="true" [class]="sortIcon('genre')"></i>
                 </button>
               </th>
               <th [attr.aria-sort]="sortAria('developer')">
@@ -93,7 +93,7 @@
                   class="btn btn-sm btn-link text-body fw-semibold text-decoration-none p-0"
                   (click)="sortBy('developer')"
                 >
-                  Developer<i [class]="sortIcon('developer')" aria-hidden="true"></i>
+                  Developer<i aria-hidden="true" [class]="sortIcon('developer')"></i>
                 </button>
               </th>
               <th [attr.aria-sort]="sortAria('releaseDate')">
@@ -102,7 +102,7 @@
                   class="btn btn-sm btn-link text-body fw-semibold text-decoration-none p-0"
                   (click)="sortBy('releaseDate')"
                 >
-                  Released<i [class]="sortIcon('releaseDate')" aria-hidden="true"></i>
+                  Released<i aria-hidden="true" [class]="sortIcon('releaseDate')"></i>
                 </button>
               </th>
               <th class="text-end" [attr.aria-sort]="sortAria('price')">
@@ -111,7 +111,7 @@
                   class="btn btn-sm btn-link text-body fw-semibold text-decoration-none p-0"
                   (click)="sortBy('price')"
                 >
-                  Price<i [class]="sortIcon('price')" aria-hidden="true"></i>
+                  Price<i aria-hidden="true" [class]="sortIcon('price')"></i>
                 </button>
               </th>
               <th class="text-end">Actions</th>
@@ -129,9 +129,9 @@
                 <td class="text-end">{{ game.price | currency }}</td>
                 <td class="text-end text-nowrap">
                   <a
-                    [routerLink]="['/games', game.id, 'edit']"
                     class="btn btn-sm btn-outline-primary me-1"
                     ngbTooltip="Edit"
+                    [routerLink]="['/games', game.id, 'edit']"
                     [attr.aria-label]="'Edit ' + game.title"
                   >
                     <i class="bi bi-pencil"></i>

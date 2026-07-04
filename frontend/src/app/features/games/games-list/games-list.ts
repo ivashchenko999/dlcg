@@ -22,8 +22,8 @@ import { ConfirmModal } from '@shared/components/confirm-modal/confirm-modal';
 import { ErrorAlert } from '@shared/components/error-alert/error-alert';
 import { LoadingSpinner } from '@shared/components/loading-spinner/loading-spinner';
 import { PAGE_SIZE, SEARCH_DEBOUNCE_MS } from '@shared/constants/app.constants';
-import { GameQuery, GameSortField, SortDirection } from '@shared/models/game-query.model';
-import { Game } from '@shared/models/game.model';
+import type { GameQuery, GameSortField, SortDirection } from '@shared/models/game-query.model';
+import type { Game } from '@shared/models/game.model';
 
 const DEFAULT_QUERY: GameQuery = {
   search: '',
@@ -143,9 +143,15 @@ export class GamesList {
     this.genresError.set(null);
     this.api
       .getGenres()
-      .pipe(finalize(() => this.genresLoading.set(false)))
+      .pipe(
+        finalize(() => {
+          this.genresLoading.set(false);
+        }),
+      )
       .subscribe({
-        next: (genres) => this.genres.set(genres.map((genre) => genre.name)),
+        next: (genres) => {
+          this.genres.set(genres.map((genre) => genre.name));
+        },
         error: () => {
           this.genres.set([]);
           this.genresError.set('Genres are unavailable.');
@@ -188,13 +194,18 @@ export class GamesList {
 
   protected confirmDelete(game: Game): void {
     const modal = this.modalService.open(ConfirmModal);
-    modal.componentInstance.title = 'Delete game';
-    modal.componentInstance.message = `Are you sure you want to delete "${game.title}"? This cannot be undone.`;
-    modal.componentInstance.confirmLabel = 'Delete';
+    const component = modal.componentInstance as ConfirmModal;
+    component.title = 'Delete game';
+    component.message = `Are you sure you want to delete "${game.title}"? This cannot be undone.`;
+    component.confirmLabel = 'Delete';
 
     modal.result.then(
-      () => this.delete(game),
-      () => {}, // dismissed — nothing to do
+      () => {
+        this.delete(game);
+      },
+      () => {
+        // Dismissal is an intentional no-op.
+      },
     );
   }
 
@@ -204,7 +215,9 @@ export class GamesList {
         this.toasts.success(`"${game.title}" was deleted.`);
         this.load();
       },
-      error: () => this.toasts.error(`Failed to delete "${game.title}".`),
+      error: () => {
+        this.toasts.error(`Failed to delete "${game.title}".`);
+      },
     });
   }
 

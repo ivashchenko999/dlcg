@@ -1,4 +1,4 @@
-import { FormControl } from '@angular/forms';
+import type { FormControl } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -7,6 +7,14 @@ import { of, throwError } from 'rxjs';
 import { GameApi } from '@core/api/game-api';
 
 import { GamesList } from './games-list';
+
+function routeComponent(harness: RouterTestingHarness): unknown {
+  const route = harness.routeDebugElement;
+  if (route === null) {
+    throw new Error('Routed component was not rendered.');
+  }
+  return route.componentInstance as unknown;
+}
 
 describe('GamesList URL state', () => {
   const api = {
@@ -65,7 +73,7 @@ describe('GamesList URL state', () => {
 
   it('writes filters and pagination to query parameters', async () => {
     const harness = await RouterTestingHarness.create('/games');
-    const component = harness.routeDebugElement!.componentInstance as {
+    const component = routeComponent(harness) as {
       filterByGenre(genre: string): Promise<boolean>;
       changePage(page: number): Promise<boolean>;
     };
@@ -83,7 +91,7 @@ describe('GamesList URL state', () => {
 
   it('stores sorting in the URL and toggles its direction', async () => {
     const harness = await RouterTestingHarness.create('/games');
-    const component = harness.routeDebugElement!.componentInstance as {
+    const component = routeComponent(harness) as {
       sortBy(field: 'price'): Promise<boolean>;
     };
     const router = TestBed.inject(Router);
@@ -102,7 +110,9 @@ describe('GamesList URL state', () => {
     const harness = await RouterTestingHarness.create('/games?page=99');
     const router = TestBed.inject(Router);
 
-    await vi.waitFor(() => expect(router.url).toBe('/games'));
+    await vi.waitFor(() => {
+      expect(router.url).toBe('/games');
+    });
 
     expect(api.getGames).toHaveBeenLastCalledWith(expect.objectContaining({ page: 1 }));
     harness.detectChanges();
@@ -111,7 +121,7 @@ describe('GamesList URL state', () => {
   it('exposes genre loading errors and allows retrying', async () => {
     api.getGenres.mockImplementationOnce(() => throwError(() => new Error('Unavailable')));
     const harness = await RouterTestingHarness.create('/games');
-    const component = harness.routeDebugElement!.componentInstance as {
+    const component = routeComponent(harness) as {
       genres(): string[];
       genresError(): string | null;
       loadGenres(): void;

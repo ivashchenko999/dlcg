@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NgbDateAdapter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateAdapter, type NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 /** Binds NgbDatepicker to the ISO "yyyy-MM-dd" strings used by the API. */
 @Injectable()
@@ -17,6 +17,6 @@ export class IsoStringDateAdapter extends NgbDateAdapter<string> {
       return null;
     }
     const pad = (n: number) => String(n).padStart(2, '0');
-    return `${date.year}-${pad(date.month)}-${pad(date.day)}`;
+    return `${String(date.year)}-${pad(date.month)}-${pad(date.day)}`;
   }
 }

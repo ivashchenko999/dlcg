@@ -324,15 +324,16 @@ Run frontend tests once:
 
 ```bash
 cd frontend
-npm test -- --watch=false
+npm run test:ci
 ```
 
-Build the production frontend bundle:
+Run the complete frontend quality gate:
 
 ```bash
 cd frontend
-npm run build
+npm run check
 ```
 
-The CI workflow performs the backend test suite, frontend production build, and frontend test
-suite on every pull request and every push to `main`.
+The CI workflow verifies .NET formatting and backend tests, then runs strict Angular ESLint,
+the frontend production build, and frontend tests. It runs on every pull request update and every
+push to `main`.

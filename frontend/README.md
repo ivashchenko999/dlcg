@@ -72,11 +72,15 @@ During development, `proxy.conf.json` forwards `/api` to `http://localhost:5161`
 ```bash
 npm ci
 npm start
+npm run lint
 npm run build
-npm test -- --watch=false
+npm run test:ci
+npm run check
 ```
 
-The production build uses bundle budgets configured in `angular.json`.
+`npm run check` reproduces the complete frontend CI sequence locally: strict ESLint, production
+build, and the one-shot test suite. The production build uses bundle budgets configured in
+`angular.json`.
 
 ## Review Checklist
 

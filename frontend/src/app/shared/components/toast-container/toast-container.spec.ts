@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ToastService } from '@core/services/toast.service';
 
@@ -19,7 +19,11 @@ describe('ToastContainer', () => {
     toastService.success('Game saved.');
     fixture.detectChanges();
 
-    const toast = fixture.nativeElement.querySelector('ngb-toast');
+    const toast = (fixture.nativeElement as HTMLElement).querySelector('ngb-toast');
+    expect(toast).not.toBeNull();
+    if (!(toast instanceof HTMLElement)) {
+      throw new Error('Toast was not rendered.');
+    }
     expect(toast.textContent).toContain('Game saved.');
     expect(toast.classList).toContain('text-bg-success');
   });

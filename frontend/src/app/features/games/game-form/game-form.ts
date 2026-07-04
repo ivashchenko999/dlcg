@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { Component, type OnInit, computed, inject, input, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgbDateAdapter, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
@@ -7,8 +7,8 @@ import { GameApi } from '@core/api/game-api';
 import { ToastService } from '@core/services/toast.service';
 import { ErrorAlert } from '@shared/components/error-alert/error-alert';
 import { LoadingSpinner } from '@shared/components/loading-spinner/loading-spinner';
-import { Genre } from '@shared/models/genre.model';
-import { SaveGameRequest } from '@shared/models/game.model';
+import type { Genre } from '@shared/models/genre.model';
+import type { SaveGameRequest } from '@shared/models/game.model';
 import { IsoStringDateAdapter } from '@shared/utils/iso-date-adapter';
 
 @Component({
@@ -42,8 +42,12 @@ export class GameForm implements OnInit {
 
   ngOnInit(): void {
     this.api.getGenres().subscribe({
-      next: (genres) => this.genres.set(genres),
-      error: () => this.error.set('Failed to load genres.'),
+      next: (genres) => {
+        this.genres.set(genres);
+      },
+      error: () => {
+        this.error.set('Failed to load genres.');
+      },
     });
 
     const id = this.gameId();
@@ -69,7 +73,10 @@ export class GameForm implements OnInit {
     }
 
     const value = this.form.getRawValue();
-    const request: SaveGameRequest = { ...value, genreId: value.genreId! };
+    if (value.genreId === null) {
+      return;
+    }
+    const request: SaveGameRequest = { ...value, genreId: value.genreId };
 
     this.saving.set(true);
     this.error.set(null);
@@ -79,7 +86,7 @@ export class GameForm implements OnInit {
     save$.subscribe({
       next: (game) => {
         this.toasts.success(`"${game.title}" was ${id === null ? 'created' : 'updated'}.`);
-        this.router.navigate(['/games']);
+        void this.router.navigate(['/games']);
       },
       error: () => {
         this.error.set('Failed to save the game. Please try again.');

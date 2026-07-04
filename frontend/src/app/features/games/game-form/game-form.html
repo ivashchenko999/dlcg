@@ -56,7 +56,7 @@
                 formControlName="genreId"
                 [class.is-invalid]="isInvalid('genreId')"
               >
-                <option [ngValue]="null" disabled>Choose a genre…</option>
+                <option disabled [ngValue]="null">Choose a genre…</option>
                 @for (genre of genres(); track genre.id) {
                   <option [ngValue]="genre.id">{{ genre.name }}</option>
                 }
@@ -69,12 +69,12 @@
                 <label class="form-label" for="releaseDate">Release date</label>
                 <div class="input-group">
                   <input
+                    #datepicker="ngbDatepicker"
                     id="releaseDate"
                     class="form-control"
                     placeholder="yyyy-mm-dd"
                     formControlName="releaseDate"
                     ngbDatepicker
-                    #datepicker="ngbDatepicker"
                     [class.is-invalid]="isInvalid('releaseDate')"
                   />
                   <button

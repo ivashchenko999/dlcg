@@ -3,8 +3,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { GameApi } from './game-api';
-import { GameQuery, PagedGames } from '@shared/models/game-query.model';
-import { Game, SaveGameRequest } from '@shared/models/game.model';
+import type { GameQuery, PagedGames } from '@shared/models/game-query.model';
+import type { Game, SaveGameRequest } from '@shared/models/game.model';
 
 describe('GameApi', () => {
   let api: GameApi;
@@ -37,7 +37,9 @@ describe('GameApi', () => {
     http = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    http.verify();
+  });
 
   it('passes paging and sorting parameters', () => {
     let result: PagedGames | undefined;
