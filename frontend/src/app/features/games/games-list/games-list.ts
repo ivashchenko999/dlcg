@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -55,6 +55,7 @@ const SORT_FIELDS: readonly GameSortField[] = [
     LoadingSpinner,
   ],
   templateUrl: './games-list.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GamesList {
   private readonly api = inject(GameApi);

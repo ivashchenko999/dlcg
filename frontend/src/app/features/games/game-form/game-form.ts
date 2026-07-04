@@ -1,4 +1,12 @@
-import { Component, type OnInit, computed, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  type OnInit,
+  computed,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -17,6 +25,7 @@ import { IsoStringDateAdapter } from '@shared/utils/iso-date-adapter';
   imports: [ReactiveFormsModule, RouterLink, NgbInputDatepicker, ErrorAlert, LoadingSpinner],
   providers: [{ provide: NgbDateAdapter, useClass: IsoStringDateAdapter }],
   templateUrl: './game-form.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GameForm implements OnInit {
   private readonly api = inject(GameApi);

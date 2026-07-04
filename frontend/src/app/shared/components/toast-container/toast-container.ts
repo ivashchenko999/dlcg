@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NgbToast } from '@ng-bootstrap/ng-bootstrap';
 
 import { ToastService } from '@core/services/toast.service';
@@ -8,6 +8,7 @@ import { TOAST_DELAY_MS } from '@shared/constants/app.constants';
 @Component({
   selector: 'app-toast-container',
   imports: [NgbToast],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
       @for (toast of toastService.toasts(); track toast) {

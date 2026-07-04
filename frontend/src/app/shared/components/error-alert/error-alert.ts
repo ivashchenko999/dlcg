@@ -1,8 +1,9 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 /** Bootstrap danger alert; renders nothing while the message is empty. */
 @Component({
   selector: 'app-error-alert',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (message()) {
       <div class="alert alert-danger d-flex align-items-center">

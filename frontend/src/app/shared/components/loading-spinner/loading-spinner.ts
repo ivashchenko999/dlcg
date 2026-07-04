@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /** Centered Bootstrap spinner shown while a page is loading data. */
 @Component({
   selector: 'app-loading-spinner',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
