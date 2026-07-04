@@ -1,6 +1,7 @@
 using GameCatalog.Api.Contracts;
 using GameCatalog.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace GameCatalog.Api.Controllers;
 
@@ -9,6 +10,7 @@ namespace GameCatalog.Api.Controllers;
 public class GenresController(IGenreService genreService) : ControllerBase
 {
     [HttpGet]
+    [OutputCache(PolicyName = "Genres")]
     public async Task<IReadOnlyList<GenreDto>> GetAll(CancellationToken cancellationToken) =>
         await genreService.GetAllAsync(cancellationToken);
 }

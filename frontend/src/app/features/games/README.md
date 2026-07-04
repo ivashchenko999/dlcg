@@ -16,8 +16,8 @@ browsing and game maintenance routes.
 ```text
 URL query parameters
         ↓
-ActivatedRoute → typed GameQuery → GameApi
-        ↓                            ↓
+ActivatedRoute → typed GameQuery → GameApi query cache
+        ↓                                   ↓
 Angular view ← PagedGames ← ASP.NET Core API
 ```
 
@@ -38,6 +38,9 @@ navigable with Back and Forward.
 `switchMap` cancels stale catalogue requests. If a page becomes invalid after deletion or a
 direct URL requests a page beyond the result set, the component navigates to the last valid
 page.
+
+Each unique URL state has its own cache entry, so search, genre, sort direction, and pagination
+results never overlap. Revisiting the same state within 60 seconds avoids another HTTP request.
 
 ## Form Flow
 

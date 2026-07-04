@@ -22,6 +22,12 @@ core/
 - returning typed RxJS observables;
 - validating the paginated response envelope at runtime.
 
+Catalogue queries are cached for 60 seconds by a normalized key containing search, genre,
+sorting, direction, page, and page size. The cache uses `shareReplay` to coalesce concurrent
+requests and is limited to 50 least-recently-used entries. Genre lookups use a separate
+10-minute cache. Successful create, update, and delete requests invalidate all cached game
+queries immediately.
+
 Components should call `GameApi` rather than inject `HttpClient` directly. This keeps transport
 details centralized and makes components straightforward to test with a mock API.
 

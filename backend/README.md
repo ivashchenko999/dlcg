@@ -12,6 +12,8 @@ HTTP request
     ↓
 Controller and model binding
     ↓
+Output cache (GET requests)
+    ↓ on cache miss
 Typed contract validation
     ↓
 Application service
@@ -54,6 +56,14 @@ before counting and paging.
 
 All paginated sorts finish with the unique game `Id`, ensuring deterministic page boundaries
 when user-visible sort values are equal.
+
+### Output Caching
+
+ASP.NET Core Output Cache stores game responses for 60 seconds and genre responses for 10
+minutes. Game cache keys vary by every query-string parameter, keeping search, filtering,
+sorting, and paging results isolated. Successful create, update, and delete operations evict the
+`games` cache tag before returning. The cache is in-process, requires no Redis service, and is
+also used by requests made through Swagger UI.
 
 ### Data and Entities
 

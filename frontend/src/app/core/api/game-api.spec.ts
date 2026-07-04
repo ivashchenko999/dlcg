@@ -63,6 +63,33 @@ describe('GameApi', () => {
     req.flush({ ...page, items: [] });
   });
 
+  it('reuses a cached response for the same normalized query', () => {
+    let first: PagedGames | undefined;
+    let second: PagedGames | undefined;
+
+    api.getGames({ ...query, search: ' Hades ' }).subscribe((result) => (first = result));
+    const req = http.expectOne(
+      '/api/games?sort=title&order=asc&page=1&pageSize=10&search=%20Hades%20',
+    );
+    req.flush(page);
+
+    api.getGames({ ...query, search: 'hades' }).subscribe((result) => (second = result));
+    http.expectNone('/api/games?sort=title&order=asc&page=1&pageSize=10&search=hades');
+
+    expect(first).toEqual(page);
+    expect(second).toEqual(page);
+  });
+
+  it('keeps different sorting combinations in separate cache entries', () => {
+    api.getGames(query).subscribe();
+    http.expectOne('/api/games?sort=title&order=asc&page=1&pageSize=10').flush(page);
+
+    api.getGames({ ...query, sort: 'price', order: 'desc' }).subscribe();
+    http
+      .expectOne('/api/games?sort=price&order=desc&page=1&pageSize=10')
+      .flush({ ...page, items: [] });
+  });
+
   it('rejects the legacy array response instead of leaving the UI in a broken state', () => {
     const error = vi.fn();
     api.getGames(query).subscribe({ error });
@@ -87,6 +114,17 @@ describe('GameApi', () => {
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(request);
     req.flush(sampleGame);
+  });
+
+  it('invalidates cached game queries after a successful mutation', () => {
+    api.getGames(query).subscribe();
+    http.expectOne('/api/games?sort=title&order=asc&page=1&pageSize=10').flush(page);
+
+    api.createGame({} as SaveGameRequest).subscribe();
+    http.expectOne('/api/games').flush(sampleGame);
+
+    api.getGames(query).subscribe();
+    http.expectOne('/api/games?sort=title&order=asc&page=1&pageSize=10').flush(page);
   });
 
   it('puts the payload to the game URL when updating', () => {

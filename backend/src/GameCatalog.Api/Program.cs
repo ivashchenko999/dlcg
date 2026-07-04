@@ -31,6 +31,16 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
+builder.Services.AddOutputCache(options =>
+{
+    options.AddPolicy("Games", policy => policy
+        .Expire(TimeSpan.FromSeconds(60))
+        .SetVaryByQuery("*")
+        .Tag("games"));
+    options.AddPolicy("Genres", policy => policy
+        .Expire(TimeSpan.FromMinutes(10))
+        .Tag("genres"));
+});
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options => options.AddPolicy("Frontend", policy =>
@@ -68,6 +78,7 @@ app.UseStaticFiles(new StaticFileOptions { FileProvider = frontendFiles });
 
 app.UseRouting();
 app.UseCors("Frontend");
+app.UseOutputCache();
 
 // Swagger stays available in production as well: the demo API is public and
 // unauthenticated, and interactive docs make the assignment easier to review.
