@@ -27,11 +27,6 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 
-// Swagger stays available in production as well: the demo API is public and
-// unauthenticated, and interactive docs make the assignment easier to review.
-app.MapOpenApi();
-app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "Game Catalog API"));
-
 // Create/upgrade the database and load sample data so the app runs out of the box.
 // In production this is opt-in via the Database:MigrateOnStartup setting.
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
@@ -44,11 +39,18 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Databas
 
 app.UseCors("Frontend");
 
+// Swagger stays available in production as well: the demo API is public and
+// unauthenticated, and interactive docs make the assignment easier to review.
+// Registered after UseCors so CORS headers are applied to /swagger/* responses.
+app.MapOpenApi();
+app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "Game Catalog API"));
+
 // In production the Angular build is served from wwwroot alongside the API.
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapControllers();
-app.MapFallbackToFile("index.html");
+// Restrict fallback to non-API paths so unrecognised /api/* routes return 404.
+app.MapFallbackToFile("{*path:regex(^(?!api/).*$)}", "index.html");
 
 app.Run();
