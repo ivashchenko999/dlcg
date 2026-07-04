@@ -121,6 +121,7 @@
                   <a
                     class="btn btn-sm btn-outline-primary me-1"
                     ngbTooltip="Edit"
+                    queryParamsHandling="preserve"
                     [routerLink]="['/games', game.id, 'edit']"
                     [attr.aria-label]="'Edit ' + game.title"
                   >

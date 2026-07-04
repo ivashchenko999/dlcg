@@ -86,7 +86,9 @@ export class GameForm implements OnInit {
     save$.subscribe({
       next: (game) => {
         this.toasts.success(`"${game.title}" was ${id === null ? 'created' : 'updated'}.`);
-        void this.router.navigate(['/games']);
+        // Catalogue state (page, sort, filters) rides along in the query string,
+        // so returning to the list restores the view the user came from.
+        void this.router.navigate(['/games'], { queryParamsHandling: 'preserve' });
       },
       error: () => {
         this.error.set('Failed to save the game. Please try again.');

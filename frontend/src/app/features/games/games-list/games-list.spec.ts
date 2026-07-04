@@ -118,6 +118,15 @@ describe('GamesList URL state', () => {
     harness.detectChanges();
   });
 
+  it('keeps catalogue state in the row edit links', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/games?page=2', GamesList);
+    harness.detectChanges();
+
+    const editLink = harness.routeNativeElement?.querySelector('a[aria-label="Edit Halo"]');
+    expect(editLink?.getAttribute('href')).toBe('/games/1/edit?page=2');
+  });
+
   it('exposes genre loading errors and allows retrying', async () => {
     api.getGenres.mockImplementationOnce(() => throwError(() => new Error('Unavailable')));
     const harness = await RouterTestingHarness.create('/games');
