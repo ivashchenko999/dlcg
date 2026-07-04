@@ -31,6 +31,30 @@ public class ContractValidationTests
         Assert.Contains(Validate(query), error => error.MemberNames.Contains(nameof(query.Page)));
     }
 
+    [Fact]
+    public void GameQuery_RejectsSearchLongerThanTitleLimit()
+    {
+        var query = new GameQuery { Search = new string('a', 201) };
+
+        Assert.Contains(Validate(query), error => error.MemberNames.Contains(nameof(query.Search)));
+    }
+
+    [Fact]
+    public void GameQuery_RejectsGenreLongerThanNameLimit()
+    {
+        var query = new GameQuery { Genre = new string('a', 101) };
+
+        Assert.Contains(Validate(query), error => error.MemberNames.Contains(nameof(query.Genre)));
+    }
+
+    [Fact]
+    public void GameQuery_RejectsPageSizeAboveLimit()
+    {
+        var query = new GameQuery { PageSize = 101 };
+
+        Assert.Contains(Validate(query), error => error.MemberNames.Contains(nameof(query.PageSize)));
+    }
+
     private static List<ValidationResult> Validate(object model)
     {
         var results = new List<ValidationResult>();

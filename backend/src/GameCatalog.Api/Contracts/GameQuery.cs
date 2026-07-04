@@ -19,15 +19,17 @@ public enum SortDirection
 
 public sealed class GameQuery
 {
+    [StringLength(200)]
     public string? Search { get; init; }
 
+    [StringLength(100)]
     public string? Genre { get; init; }
 
     public GameSortField Sort { get; init; } = GameSortField.Title;
 
     public SortDirection Order { get; init; } = SortDirection.Asc;
 
-    [Range(1, 1_000_000)]
+    [Range(1, 10_000)]
     public int Page { get; init; } = 1;
 
     [Range(1, 100)]
