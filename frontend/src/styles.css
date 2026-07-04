@@ -2,3 +2,8 @@
 body {
   background-color: var(--bs-tertiary-bg);
 }
+
+/* Slightly tighter than the Bootstrap default (0.35em 0.65em). */
+.badge-genre {
+  padding: 0.28em 0.55em;
+}
