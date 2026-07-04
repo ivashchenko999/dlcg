@@ -79,6 +79,36 @@ public class GameServiceTests : IDisposable
         Assert.Equal(2, result.Page);
     }
 
+    [Theory]
+    [InlineData(GameSortField.Title, SortDirection.Asc, new[] { "Alpha", "Beta", "Gamma" })]
+    [InlineData(GameSortField.Title, SortDirection.Desc, new[] { "Gamma", "Beta", "Alpha" })]
+    [InlineData(GameSortField.Developer, SortDirection.Asc, new[] { "Gamma", "Alpha", "Beta" })]
+    [InlineData(GameSortField.Developer, SortDirection.Desc, new[] { "Beta", "Alpha", "Gamma" })]
+    [InlineData(GameSortField.ReleaseDate, SortDirection.Asc, new[] { "Beta", "Gamma", "Alpha" })]
+    [InlineData(GameSortField.ReleaseDate, SortDirection.Desc, new[] { "Alpha", "Gamma", "Beta" })]
+    [InlineData(GameSortField.Price, SortDirection.Asc, new[] { "Gamma", "Alpha", "Beta" })]
+    [InlineData(GameSortField.Price, SortDirection.Desc, new[] { "Beta", "Alpha", "Gamma" })]
+    [InlineData(GameSortField.Genre, SortDirection.Asc, new[] { "Beta", "Gamma", "Alpha" })]
+    [InlineData(GameSortField.Genre, SortDirection.Desc, new[] { "Alpha", "Gamma", "Beta" })]
+    public async Task GetAllAsync_SortsByEveryFieldInBothDirections(
+        GameSortField sort,
+        SortDirection order,
+        string[] expectedTitles)
+    {
+        // "Aardvark" sorts before "Action" while its id sorts after every seeded
+        // genre id, so the Genre cases fail if sorting regresses to GenreId.
+        await AddGenreAsync(7, "Aardvark");
+        await AddGamesAsync(
+            new Game { Title = "Alpha", Developer = "M Dev", ReleaseDate = new DateOnly(2023, 1, 1), Price = 20m, GenreId = RpgGenreId },
+            new Game { Title = "Beta", Developer = "Z Dev", ReleaseDate = new DateOnly(2021, 1, 1), Price = 30m, GenreId = 7 },
+            new Game { Title = "Gamma", Developer = "A Dev", ReleaseDate = new DateOnly(2022, 1, 1), Price = 10m, GenreId = ActionGenreId });
+        var service = CreateService();
+
+        var result = await service.GetAllAsync(new GameQuery { Sort = sort, Order = order });
+
+        Assert.Equal(expectedTitles, result.Items.Select(g => g.Title));
+    }
+
     [Fact]
     public async Task GetAllAsync_UsesIdAsStableSortTieBreaker()
     {
@@ -225,6 +255,13 @@ public class GameServiceTests : IDisposable
     }
 
     private GameService CreateService() => new(_dbFactory.CreateContext());
+
+    private async Task AddGenreAsync(int id, string name)
+    {
+        using var db = _dbFactory.CreateContext();
+        db.Genres.Add(new Genre { Id = id, Name = name });
+        await db.SaveChangesAsync();
+    }
 
     private async Task<List<Game>> AddGamesAsync(params Game[] games)
     {
