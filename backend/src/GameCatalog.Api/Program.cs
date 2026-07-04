@@ -31,8 +31,12 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "Game Catalog API"));
+}
 
-    // Create/upgrade the database and load sample data so the app runs out of the box.
+// Create/upgrade the database and load sample data so the app runs out of the box.
+// In production this is opt-in via the Database:MigrateOnStartup setting.
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+{
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<GameCatalogDbContext>();
     await db.Database.MigrateAsync();
@@ -41,6 +45,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("Frontend");
 
+// In production the Angular build is served from wwwroot alongside the API.
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();
