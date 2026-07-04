@@ -149,6 +149,9 @@
             [collectionSize]="totalCount()"
             [pageSize]="pageSize"
             [page]="query().page"
+            [maxSize]="5"
+            [rotate]="true"
+            [boundaryLinks]="true"
             (pageChange)="changePage($event)"
           />
         </div>

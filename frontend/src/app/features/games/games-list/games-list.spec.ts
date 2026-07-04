@@ -140,6 +140,37 @@ describe('GamesList URL state', () => {
     expect(editLink?.getAttribute('href')).toBe('/games/1/edit?page=2');
   });
 
+  it('collapses long page lists with ellipses', async () => {
+    api.getGames.mockImplementationOnce(() =>
+      of({
+        items: [
+          {
+            id: 1,
+            title: 'Halo',
+            developer: 'Bungie',
+            releaseDate: '2001-11-15',
+            price: 59.99,
+            genreId: 1,
+            genreName: 'Action',
+          },
+        ],
+        totalCount: 1000,
+        page: 50,
+        pageSize: 10,
+      }),
+    );
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/games?page=50', GamesList);
+    harness.detectChanges();
+
+    const items = Array.from(
+      harness.routeNativeElement?.querySelectorAll('ngb-pagination li') ?? [],
+    );
+    // « ‹ 1 … five-page window … 100 › » — instead of one button per page.
+    expect(items.length).toBeLessThanOrEqual(13);
+    expect(items.some((item) => item.textContent.includes('...'))).toBe(true);
+  });
+
   it('exposes genre loading errors and allows retrying', async () => {
     api.getGenres.mockImplementationOnce(() => throwError(() => new Error('Unavailable')));
     const harness = await RouterTestingHarness.create('/games');
