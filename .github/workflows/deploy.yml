@@ -11,6 +11,9 @@ concurrency:
 
 jobs:
   deploy:
+    # Deploys are opt-in: push with "[deploy]" in the head commit message,
+    # or start the workflow manually from the Actions tab.
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[deploy]')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
