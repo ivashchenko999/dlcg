@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/ivashchenko999/dlcg/compare/v1.0.1...v1.0.2) (2026-07-04)
+
+
+### Bug Fixes
+
+* harden cache and deployment checks ([12bc58d](https://github.com/ivashchenko999/dlcg/commit/12bc58d9d2ce5c829e30e6172755d187ad56c5b9))
+
 ## [1.0.1](https://github.com/ivashchenko999/dlcg/compare/v1.0.0...v1.0.1) (2026-07-04)
 
 
