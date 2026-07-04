@@ -61,7 +61,7 @@ public class GameService(GameCatalogDbContext db) : IGameService
         {
             Title = request.Title.Trim(),
             Developer = request.Developer.Trim(),
-            ReleaseDate = request.ReleaseDate!.Value,
+            ReleaseDate = RequiredReleaseDate(request),
             Price = request.Price,
             GenreId = request.GenreId,
         };
@@ -69,7 +69,8 @@ public class GameService(GameCatalogDbContext db) : IGameService
         db.Games.Add(game);
         await db.SaveChangesAsync(cancellationToken);
 
-        return (await GetByIdAsync(game.Id, cancellationToken))!;
+        return await GetByIdAsync(game.Id, cancellationToken)
+            ?? throw new InvalidOperationException($"Game {game.Id} was not found immediately after creation.");
     }
 
     public async Task<GameDto?> UpdateAsync(int id, SaveGameRequest request, CancellationToken cancellationToken = default)
@@ -84,7 +85,7 @@ public class GameService(GameCatalogDbContext db) : IGameService
 
         game.Title = request.Title.Trim();
         game.Developer = request.Developer.Trim();
-        game.ReleaseDate = request.ReleaseDate!.Value;
+        game.ReleaseDate = RequiredReleaseDate(request);
         game.Price = request.Price;
         game.GenreId = request.GenreId;
 
@@ -95,6 +96,14 @@ public class GameService(GameCatalogDbContext db) : IGameService
 
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default) =>
         await db.Games.Where(g => g.Id == id).ExecuteDeleteAsync(cancellationToken) > 0;
+
+    /// <summary>
+    /// Model validation guarantees the value on requests coming through the API;
+    /// this guard keeps unvalidated callers (tests, future tooling) diagnosable.
+    /// </summary>
+    private static DateOnly RequiredReleaseDate(SaveGameRequest request) =>
+        request.ReleaseDate ?? throw new ArgumentException(
+            $"{nameof(SaveGameRequest.ReleaseDate)} is required.", nameof(request));
 
     private async Task EnsureGenreExistsAsync(int genreId, CancellationToken cancellationToken)
     {
