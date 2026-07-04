@@ -5,7 +5,7 @@ GET {{host}}/api/games
 Accept: application/json
 
 ### Search games by title
-GET {{host}}/api/games?search=witcher
+GET {{host}}/api/games?search=elden
 Accept: application/json
 
 ### Get a single game
@@ -29,11 +29,11 @@ PUT {{host}}/api/games/1
 Content-Type: application/json
 
 {
-  "title": "The Witcher 3: Wild Hunt",
-  "developer": "CD Projekt Red",
-  "releaseDate": "2015-05-19",
-  "price": 39.99,
-  "genreId": 3
+  "title": "Hollow Knight",
+  "developer": "Team Cherry",
+  "releaseDate": "2017-02-24",
+  "price": 14.99,
+  "genreId": 2
 }
 
 ### Delete a game

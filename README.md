@@ -69,7 +69,7 @@ The Angular application uses standalone components and a feature-oriented struct
 A catalogue URL can be bookmarked or shared without losing its state:
 
 ```text
-/games?q=witcher&genre=RPG&sort=price&order=desc&page=2
+/games?q=elden&genre=RPG&sort=price&order=desc&page=2
 ```
 
 ## Backend Design
@@ -363,7 +363,7 @@ with `docker start gamecatalog-sql`.
 Example:
 
 ```http
-GET /api/games?search=witcher&genre=RPG&sort=price&order=desc&page=1&pageSize=10
+GET /api/games?search=elden&genre=RPG&sort=price&order=desc&page=1&pageSize=10
 ```
 
 Paginated response:
