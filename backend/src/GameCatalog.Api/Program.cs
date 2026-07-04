@@ -1,6 +1,7 @@
 using GameCatalog.Api.Data;
 using GameCatalog.Api.Infrastructure;
 using GameCatalog.Api.Services;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -30,7 +31,8 @@ builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddOpenApi();
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<GameCatalogDbContext>(tags: ["ready"]);
 builder.Services.AddOutputCache(options =>
 {
     options.AddPolicy("GameList", policy => policy
@@ -92,7 +94,13 @@ app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "Game Ca
 
 // Liveness deliberately excludes external dependencies. Azure can distinguish a
 // running application from a database outage without restarting a healthy process.
-app.MapHealthChecks("/health");
+// Readiness includes the database, so a deployment whose startup migration failed
+// (see the degraded-mode catch above) is visibly unhealthy instead of silently broken.
+app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false });
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+});
 app.MapControllers();
 // Restrict fallback to non-API paths so unrecognised /api/* routes return 404.
 app.MapFallbackToFile(
