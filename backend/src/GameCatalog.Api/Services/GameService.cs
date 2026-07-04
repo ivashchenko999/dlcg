@@ -20,7 +20,11 @@ public class GameService(GameCatalogDbContext db) : IGameService
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
-            // ToLower makes the search case-insensitive regardless of database collation.
+            // ToLower makes the search case-insensitive regardless of database collation
+            // and provider (SQL Server in production, SQLite in tests). The resulting
+            // leading-wildcard LIKE cannot seek the Title index, which is an accepted
+            // trade-off at catalogue scale; a production-size dataset would move to
+            // full-text search or an indexed, normalised search column.
             var pattern = request.Search.Trim().ToLower();
             query = query.Where(g => g.Title.ToLower().Contains(pattern));
         }

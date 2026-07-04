@@ -74,6 +74,16 @@ before counting and paging.
 All paginated sorts finish with the unique game `Id`, ensuring deterministic page boundaries
 when user-visible sort values are equal.
 
+#### Search Trade-off
+
+Title search translates to a leading-wildcard `LIKE '%…%'` over a lower-cased title. A leading
+wildcard cannot seek the `Title` index, so every search scans the filtered set. This is a
+deliberate choice for a catalogue of this size: it behaves identically on any collation and on
+both database providers (SQL Server in production, SQLite in tests), and it keeps the query
+composable with the genre filter, sorting, and paging. A production-scale catalogue would serve
+the same API contract with SQL Server full-text search or a persisted, normalised search column
+with its own index.
+
 ### Output Caching
 
 ASP.NET Core Output Cache stores game responses for 60 seconds and genre responses for 10
