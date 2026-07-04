@@ -112,7 +112,13 @@ export class GamesList {
     this.search.valueChanges
       .pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed())
       .subscribe((search) => {
-        void this.updateQueryParams({ q: search.trim() || null, page: null }, true);
+        const trimmed = search.trim();
+        // Input events that do not change the text (clear button, autofill)
+        // must not reset the page and the rest of the URL state.
+        if (trimmed === this.query().search) {
+          return;
+        }
+        void this.updateQueryParams({ q: trimmed || null, page: null }, true);
       });
 
     this.route.queryParamMap

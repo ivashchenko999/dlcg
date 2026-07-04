@@ -118,6 +118,19 @@ describe('GamesList URL state', () => {
     harness.detectChanges();
   });
 
+  it('keeps the page when a search input event does not change the text', async () => {
+    const harness = await RouterTestingHarness.create();
+    const component = await harness.navigateByUrl('/games?page=2', GamesList);
+    const state = component as unknown as { search: FormControl<string> };
+    const router = TestBed.inject(Router);
+
+    // Simulates a clear-button click or autofill event with unchanged text.
+    state.search.setValue('');
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
+    expect(router.url).toBe('/games?page=2');
+  });
+
   it('keeps catalogue state in the row edit links', async () => {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/games?page=2', GamesList);
