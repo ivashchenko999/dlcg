@@ -2,8 +2,15 @@ using GameCatalog.Api.Data;
 using GameCatalog.Api.Infrastructure;
 using GameCatalog.Api.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
-var builder = WebApplication.CreateBuilder(args);
+var applicationRoot = AppContext.BaseDirectory;
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = applicationRoot,
+    WebRootPath = Path.Combine(applicationRoot, "wwwroot")
+});
 
 // Optional machine-specific overrides (gitignored), e.g. a local connection string.
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
@@ -54,6 +61,12 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Databas
     }
 }
 
+// Static files must run before endpoint routing selects the SPA fallback.
+var frontendFiles = new PhysicalFileProvider(Path.Combine(applicationRoot, "wwwroot"));
+app.UseDefaultFiles(new DefaultFilesOptions { FileProvider = frontendFiles });
+app.UseStaticFiles(new StaticFileOptions { FileProvider = frontendFiles });
+
+app.UseRouting();
 app.UseCors("Frontend");
 
 // Swagger stays available in production as well: the demo API is public and
@@ -62,15 +75,14 @@ app.UseCors("Frontend");
 app.MapOpenApi();
 app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "Game Catalog API"));
 
-// In production the Angular build is served from wwwroot alongside the API.
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
 // Liveness deliberately excludes external dependencies. Azure can distinguish a
 // running application from a database outage without restarting a healthy process.
 app.MapHealthChecks("/health");
 app.MapControllers();
 // Restrict fallback to non-API paths so unrecognised /api/* routes return 404.
-app.MapFallbackToFile("{*path:regex(^(?!api/).*$)}", "index.html");
+app.MapFallbackToFile(
+    "{*path:regex(^(?!api/).*$)}",
+    "index.html",
+    new StaticFileOptions { FileProvider = frontendFiles });
 
 app.Run();

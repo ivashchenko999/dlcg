@@ -51,12 +51,22 @@ jobs:
         shell: bash
         run: |
           for attempt in {1..18}; do
-            if curl --fail --silent --show-error --max-time 15 \
-              https://gamecatalog-ivashchenko.azurewebsites.net/health \
-              && curl --fail --silent --show-error --max-time 15 \
-              https://gamecatalog-ivashchenko.azurewebsites.net/ > /dev/null; then
-              echo "Deployment is healthy."
-              exit 0
+            base_url="https://gamecatalog-ivashchenko.azurewebsites.net"
+            if curl --fail --silent --show-error --max-time 15 "$base_url/health"; then
+              html=$(curl --fail --silent --show-error --max-time 15 "$base_url/")
+              main_script=$(printf '%s' "$html" | grep -oE 'src="[^"]*main-[^"]+\.js"' | head -n 1 | cut -d '"' -f 2)
+
+              if [ -n "$main_script" ]; then
+                content_type=$(curl --fail --silent --show-error --max-time 15 \
+                  --output /dev/null --write-out '%{content_type}' "$base_url/${main_script#/}")
+
+                if [[ "$content_type" == *javascript* ]]; then
+                  echo "Deployment is healthy and frontend assets are executable."
+                  exit 0
+                fi
+
+                echo "Frontend asset has invalid content type: $content_type"
+              fi
             fi
 
             echo "Health check attempt ${attempt} failed; retrying in 10 seconds."
