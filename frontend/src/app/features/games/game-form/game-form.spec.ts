@@ -1,23 +1,23 @@
 import type { FormGroup } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { GameApi } from '@core/api/game-api';
 
 import { GameForm } from './game-form';
 
 describe('GameForm', () => {
+  const api = {
+    getGenres: () => of([{ id: 1, name: 'Action' }]),
+    getGame: vi.fn(() => throwError(() => new Error('Not found'))),
+  };
+
   beforeEach(() => {
+    api.getGame.mockClear();
     TestBed.configureTestingModule({
       imports: [GameForm],
-      providers: [
-        provideRouter([]),
-        {
-          provide: GameApi,
-          useValue: { getGenres: () => of([{ id: 1, name: 'Action' }]) },
-        },
-      ],
+      providers: [provideRouter([]), { provide: GameApi, useValue: api }],
     });
   });
 
@@ -57,5 +57,14 @@ describe('GameForm', () => {
 
     expect(component.form.controls['title'].invalid).toBe(true);
     expect(component.form.controls['developer'].invalid).toBe(true);
+  });
+
+  it('shows a universal error when the edit URL does not resolve to a game', () => {
+    const fixture = TestBed.createComponent(GameForm);
+    fixture.componentRef.setInput('id', 'not-a-real-id');
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent;
+    expect(text).toContain('Unable to load the requested game.');
   });
 });

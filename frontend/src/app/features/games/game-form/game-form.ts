@@ -59,7 +59,7 @@ export class GameForm implements OnInit {
           this.loading.set(false);
         },
         error: () => {
-          this.error.set('Failed to load the game. It may have been deleted.');
+          this.error.set('Unable to load the requested game.');
           this.loading.set(false);
         },
       });
