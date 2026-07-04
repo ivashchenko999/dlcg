@@ -10,12 +10,12 @@ namespace GameCatalog.Api.Controllers;
 public class GamesController(IGameService gameService, IOutputCacheStore outputCache) : ControllerBase
 {
     [HttpGet]
-    [OutputCache(PolicyName = "Games")]
+    [OutputCache(PolicyName = "GameList")]
     public async Task<PagedResult<GameDto>> GetAll([FromQuery] GameQuery query, CancellationToken cancellationToken) =>
         await gameService.GetAllAsync(query, cancellationToken);
 
     [HttpGet("{id:int}")]
-    [OutputCache(PolicyName = "Games")]
+    [OutputCache(PolicyName = "GameItem")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<GameDto>> GetById(int id, CancellationToken cancellationToken)
     {
@@ -28,7 +28,7 @@ public class GamesController(IGameService gameService, IOutputCacheStore outputC
     public async Task<ActionResult<GameDto>> Create(SaveGameRequest request, CancellationToken cancellationToken)
     {
         var created = await gameService.CreateAsync(request, cancellationToken);
-        await outputCache.EvictByTagAsync("games", cancellationToken);
+        await outputCache.EvictByTagAsync("games", CancellationToken.None);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -40,7 +40,7 @@ public class GamesController(IGameService gameService, IOutputCacheStore outputC
         var updated = await gameService.UpdateAsync(id, request, cancellationToken);
         if (updated is not null)
         {
-            await outputCache.EvictByTagAsync("games", cancellationToken);
+            await outputCache.EvictByTagAsync("games", CancellationToken.None);
         }
         return updated is null ? NotFound() : updated;
     }
@@ -55,7 +55,7 @@ public class GamesController(IGameService gameService, IOutputCacheStore outputC
             return NotFound();
         }
 
-        await outputCache.EvictByTagAsync("games", cancellationToken);
+        await outputCache.EvictByTagAsync("games", CancellationToken.None);
         return NoContent();
     }
 }

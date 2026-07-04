@@ -74,10 +74,12 @@ flowchart TD
     S --> G["GameApi.getGames(query)"]
     G -->|"fresh entry"| C["client LRU cache<br/>(60 s, 50 entries)"]
     G -->|"miss"| H["GET /api/games<br/>(switchMap cancels stale requests)"]
-    H --> V["runtime shape validation<br/>of PagedResult"]
+    H -->|"200"| V["runtime shape validation<br/>of PagedResult"]
+    H -->|"request or shape error"| E["error-only state;<br/>stale rows cleared"]
     C --> ST["games / totalCount signals"]
     V --> ST
     ST --> T["table, badges, and<br/>pagination re-render"]
+    E --> A["error alert;<br/>no stale table"]
 ```
 
 Create, update, and delete calls clear the client cache, so the next catalogue query always

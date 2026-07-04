@@ -1,4 +1,5 @@
 import { Component, type OnInit, computed, inject, input, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgbDateAdapter, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
@@ -52,8 +53,7 @@ export class GameForm implements OnInit {
 
     const id = this.gameId();
     if (id === null) {
-      this.error.set('The game URL contains an invalid id.');
-      this.form.disable();
+      void this.router.navigateByUrl('/not-found', { replaceUrl: true });
     } else if (id !== undefined) {
       this.loading.set(true);
       this.api.getGame(id).subscribe({
@@ -61,7 +61,11 @@ export class GameForm implements OnInit {
           this.form.patchValue(game);
           this.loading.set(false);
         },
-        error: () => {
+        error: (error: unknown) => {
+          if (error instanceof HttpErrorResponse && error.status === 404) {
+            void this.router.navigateByUrl('/not-found', { replaceUrl: true });
+            return;
+          }
           this.error.set('Unable to load the requested game.');
           this.loading.set(false);
         },
@@ -86,8 +90,7 @@ export class GameForm implements OnInit {
 
     const id = this.gameId();
     if (id === null) {
-      this.error.set('The game URL contains an invalid id.');
-      this.saving.set(false);
+      void this.router.navigateByUrl('/not-found', { replaceUrl: true });
       return;
     }
     const save$ =

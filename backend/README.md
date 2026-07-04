@@ -12,7 +12,7 @@ Every outcome a request can take, including both error branches:
 ```mermaid
 flowchart TD
     A["HTTP request"] --> B["Routing and CORS"]
-    B --> C{"Output cache<br/>(GET games and genres)"}
+    B --> C{"Named output-cache policy<br/>(GameList / GameItem / Genres)"}
     C -- "hit" --> H["Cached JSON response"]
     C -- "miss" --> D{"Model binding and<br/>data-annotation validation"}
     D -- "invalid" --> E["400 validation Problem Details"]
@@ -87,16 +87,18 @@ with its own index.
 ### Output Caching
 
 ASP.NET Core Output Cache stores game responses for 60 seconds and genre responses for 10
-minutes. Game cache keys vary by every query-string parameter, keeping search, filtering,
-sorting, and paging results isolated. Successful create, update, and delete operations evict the
-`games` cache tag before returning. The cache is in-process, requires no Redis service, and is
-also used by requests made through Swagger UI.
+minutes. Catalogue-list cache keys vary only by the supported search, genre, sort, order, page,
+and page-size parameters; unknown query parameters cannot create redundant entries. Individual
+game responses use a separate policy that ignores query parameters. Successful create, update,
+and delete operations evict the `games` cache tag with a server-owned token after the database
+write. The cache is in-process, requires no Redis service, and is also used by requests made
+through Swagger UI.
 
 ```mermaid
 flowchart LR
     W["POST / PUT / DELETE<br/>/api/games"] --> S["GameService"]
     S --> DB[("SQL Server")]
-    DB --> E["evict cache tag: games"]
+    DB --> E["evict cache tag: games<br/>(server-owned token)"]
     E --> R["201 / 200 / 204 response"]
     R -.-> G["next GET rebuilds<br/>the cache entry"]
 ```

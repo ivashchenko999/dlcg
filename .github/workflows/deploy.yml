@@ -65,11 +65,29 @@ jobs:
                   --output /dev/null --write-out '%{content_type}' "$base_url/${main_script#/}")
 
                 if [[ "$content_type" == *javascript* ]]; then
-                  echo "Deployment is healthy and frontend assets are executable."
-                  exit 0
-                fi
+                  if genres=$(curl --fail --silent --show-error --max-time 15 \
+                    "$base_url/api/genres") && \
+                    games=$(curl --fail --silent --show-error --max-time 15 \
+                    "$base_url/api/games?pageSize=1") && \
+                    node -e '
+                      const genres = JSON.parse(process.argv[1]);
+                      const games = JSON.parse(process.argv[2]);
+                      if (!Array.isArray(genres) || !genres.every(
+                        genre => Number.isInteger(genre.id) && typeof genre.name === "string"
+                      )) process.exit(1);
+                      if (!games || !Array.isArray(games.items) ||
+                          typeof games.totalCount !== "number" ||
+                          typeof games.page !== "number" ||
+                          typeof games.pageSize !== "number") process.exit(1);
+                    ' "$genres" "$games"; then
+                    echo "Deployment is healthy; frontend assets and database-backed APIs work."
+                    exit 0
+                  fi
 
-                echo "Frontend asset has invalid content type: $content_type"
+                  echo "Database-backed API smoke check failed."
+                else
+                  echo "Frontend asset has invalid content type: $content_type"
+                fi
               fi
             fi
 

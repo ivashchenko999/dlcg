@@ -87,6 +87,10 @@ export class GamesList {
         switchMap((query) =>
           this.api.getGames(query).pipe(
             catchError(() => {
+              // The URL already represents the failed query. Do not leave rows from
+              // the previous query visible as if they matched the current state.
+              this.games.set([]);
+              this.totalCount.set(0);
               this.error.set('Failed to load games. Is the backend running?');
               this.loading.set(false);
               return EMPTY;

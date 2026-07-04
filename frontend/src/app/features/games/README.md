@@ -47,13 +47,17 @@ results never overlap. Revisiting the same state within 60 seconds avoids anothe
 `GameForm` serves both create and edit routes. The route-bound `id` determines the mode. The
 Reactive Form mirrors backend constraints for required fields, whitespace, length, price, date,
 and genre. Save remains disabled while the form is invalid or a request is in progress.
+Malformed, non-positive, or out-of-range edit IDs are rejected before any API request and routed
+to the not-found page. A valid ID that the backend reports as missing follows the same 404 path;
+network and server failures remain load errors rather than being disguised as missing resources.
 
 The backend remains authoritative: frontend validation improves UX but does not replace API
 validation.
 
 ## Failure Handling
 
-- Catalogue request failures display an error and stop the loading state.
+- Catalogue request failures display an error-only state, clear stale rows from the previous
+  query, and stop the loading state.
 - Genre lookup failures disable the filter and expose a retry action.
 - Save failures preserve form values and allow another attempt.
 - Delete failures produce an error toast.

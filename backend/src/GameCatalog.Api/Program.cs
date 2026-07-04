@@ -33,9 +33,13 @@ builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
 builder.Services.AddOutputCache(options =>
 {
-    options.AddPolicy("Games", policy => policy
+    options.AddPolicy("GameList", policy => policy
         .Expire(TimeSpan.FromSeconds(60))
-        .SetVaryByQuery("*")
+        .SetVaryByQuery("search", "genre", "sort", "order", "page", "pageSize")
+        .Tag("games"));
+    options.AddPolicy("GameItem", policy => policy
+        .Expire(TimeSpan.FromSeconds(60))
+        .SetVaryByQuery(Array.Empty<string>())
         .Tag("games"));
     options.AddPolicy("Genres", policy => policy
         .Expire(TimeSpan.FromMinutes(10))

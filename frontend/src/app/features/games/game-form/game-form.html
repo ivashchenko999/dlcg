@@ -97,6 +97,7 @@
                     type="button"
                     class="btn btn-outline-secondary"
                     aria-label="Open calendar"
+                    [disabled]="form.disabled"
                     (click)="datepicker.toggle()"
                   >
                     <i class="bi bi-calendar3"></i>
@@ -127,7 +128,11 @@
             </div>
 
             <div class="d-flex gap-2 mt-2">
-              <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="form.invalid || form.disabled || saving()"
+              >
                 @if (saving()) {
                   <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
                 } @else {

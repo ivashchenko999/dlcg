@@ -1,4 +1,5 @@
 import type { FormGroup } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import type { Observable } from 'rxjs';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -41,6 +42,7 @@ describe('GameForm', () => {
           [
             { path: 'games', component: ListStub },
             { path: 'games/:id/edit', component: GameForm },
+            { path: 'not-found', component: ListStub },
           ],
           withComponentInputBinding(),
         ),
@@ -96,22 +98,53 @@ describe('GameForm', () => {
     expect(component.form.controls['developer'].invalid).toBe(true);
   });
 
-  it('rejects an invalid edit id without sending an API request', () => {
+  it('routes an invalid edit id to not-found without sending an API request', async () => {
     const fixture = TestBed.createComponent(GameForm);
     fixture.componentRef.setInput('id', 'not-a-real-id');
     fixture.detectChanges();
 
-    const text = (fixture.nativeElement as HTMLElement).textContent;
-    expect(text).toContain('The game URL contains an invalid id.');
+    await vi.waitFor(() => {
+      expect(TestBed.inject(Router).url).toBe('/not-found');
+    });
     expect(api.getGame).not.toHaveBeenCalled();
   });
 
-  it.each(['0', '-1', '2147483648', 'NaN'])('rejects the out-of-range edit id %s', (id) => {
+  it.each(['0', '-1', '2147483648', 'NaN'])(
+    'routes the out-of-range edit id %s to not-found',
+    async (id) => {
+      const fixture = TestBed.createComponent(GameForm);
+      fixture.componentRef.setInput('id', id);
+      fixture.detectChanges();
+
+      await vi.waitFor(() => {
+        expect(TestBed.inject(Router).url).toBe('/not-found');
+      });
+      expect(api.getGame).not.toHaveBeenCalled();
+    },
+  );
+
+  it('routes a missing game response to not-found', async () => {
+    api.getGame.mockImplementationOnce(() =>
+      throwError(() => new HttpErrorResponse({ status: 404 })),
+    );
+    const harness = await RouterTestingHarness.create();
+
+    await harness.navigateByUrl('/games/404/edit', GameForm);
+
+    await vi.waitFor(() => {
+      expect(TestBed.inject(Router).url).toBe('/not-found');
+    });
+  });
+
+  it('keeps non-404 load failures on the edit page', () => {
     const fixture = TestBed.createComponent(GameForm);
-    fixture.componentRef.setInput('id', id);
+    fixture.componentRef.setInput('id', '7');
     fixture.detectChanges();
 
-    expect(api.getGame).not.toHaveBeenCalled();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Unable to load the requested game.',
+    );
+    expect(TestBed.inject(Router).url).not.toBe('/not-found');
   });
 
   it('returns to the catalogue page the user came from after saving', async () => {

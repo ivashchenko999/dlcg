@@ -84,8 +84,9 @@ The API is separated into controllers, contracts, services, entities, and data a
 - Every paginated sort uses a unique `Id` tie-breaker for deterministic results.
 - Data annotations reject invalid paging, oversized filters, and invalid game payloads
   before service execution.
-- Output caching stores catalogue reads for 60 seconds and genres for 10 minutes; every
-  create, update, and delete evicts the affected cache entries by tag.
+- Output caching stores catalogue reads for 60 seconds and genres for 10 minutes. List entries
+  vary only by supported query parameters, item reads use a separate policy, and every create,
+  update, and delete evicts the affected cache entries by tag.
 - Domain errors are returned as standardized Problem Details responses.
 - Cancellation tokens flow from HTTP requests into EF Core operations.
 
@@ -148,7 +149,7 @@ sequenceDiagram
     Svc->>Db: INSERT / UPDATE / DELETE
     Db-->>Svc: persisted row
     Svc-->>Ctl: GameDto
-    Ctl->>Ctl: evict the games output-cache tag
+    Ctl->>Ctl: evict the games output-cache tag with a server-owned token
     Ctl-->>Api: 201 / 200 / 204
     Api->>Api: clear the client-side games cache
     Api-->>Form: typed result
@@ -454,7 +455,7 @@ The deploy workflow can also be started manually from the GitHub Actions tab. Ev
 1. Re-runs the frontend quality gate and backend tests.
 2. Publishes the API and bundles the Angular production build into its `wwwroot`.
 3. Deploys the combined package to Azure App Service.
-4. Verifies the live application with an HTTP smoke check.
+4. Verifies liveness, frontend assets, and database-backed API responses with an HTTP smoke check.
 
 The demo runs on an Azure App Service Basic (B1) plan with Always On enabled and an Azure SQL
 Basic database, so neither the application nor the database pauses between requests. On

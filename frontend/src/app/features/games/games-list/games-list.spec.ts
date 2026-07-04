@@ -199,4 +199,25 @@ describe('GamesList URL state', () => {
     expect(addLink?.textContent).toContain('Add game');
     expect(addLink?.textContent).not.toContain('first');
   });
+
+  it('clears stale rows when a query reload fails', async () => {
+    const harness = await RouterTestingHarness.create('/games');
+    const component = routeComponent(harness) as {
+      games(): unknown[];
+      totalCount(): number;
+      error(): string | null;
+      filterByGenre(genre: string): Promise<boolean>;
+    };
+    expect(component.games()).toHaveLength(1);
+
+    api.getGames.mockImplementationOnce(() => throwError(() => new Error('Unavailable')));
+    await component.filterByGenre('Action');
+
+    expect(component.games()).toEqual([]);
+    expect(component.totalCount()).toBe(0);
+    expect(component.error()).toBe('Failed to load games. Is the backend running?');
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.querySelector('table')).toBeNull();
+    expect(harness.routeNativeElement?.textContent).not.toContain('No games match');
+  });
 });
