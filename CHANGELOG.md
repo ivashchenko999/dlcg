@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/ivashchenko999/dlcg/compare/v1.0.0...v1.0.1) (2026-07-04)
+
+
+### Bug Fixes
+
+* polish validation and local setup ([751ebfb](https://github.com/ivashchenko999/dlcg/commit/751ebfb452405f08abe28825df586bf2da080f9a))
+
 ## 1.0.0 (2026-07-04)
 
 
