@@ -187,4 +187,16 @@ describe('GamesList URL state', () => {
     expect(component.genres()).toEqual(['Action']);
     expect(component.genresError()).toBeNull();
   });
+
+  it('uses a neutral add action when filters have no matches', async () => {
+    api.getGames.mockImplementationOnce(() =>
+      of({ items: [], totalCount: 0, page: 1, pageSize: 10 }),
+    );
+    const harness = await RouterTestingHarness.create('/games?q=missing');
+    harness.detectChanges();
+
+    const addLink = harness.routeNativeElement?.querySelector('a[href="/games/new"]');
+    expect(addLink?.textContent).toContain('Add game');
+    expect(addLink?.textContent).not.toContain('first');
+  });
 });

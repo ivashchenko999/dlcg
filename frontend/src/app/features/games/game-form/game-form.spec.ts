@@ -76,6 +76,15 @@ describe('GameForm', () => {
     expect(saveButton.disabled).toBe(false);
   });
 
+  it('marks every field as required for users and assistive technology', () => {
+    const fixture = TestBed.createComponent(GameForm);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.textContent).toContain('All fields are required.');
+    expect(element.querySelectorAll('input[required], select[required]')).toHaveLength(5);
+  });
+
   it('treats whitespace-only title and developer as invalid', () => {
     const fixture = TestBed.createComponent(GameForm);
     fixture.detectChanges();
@@ -87,13 +96,22 @@ describe('GameForm', () => {
     expect(component.form.controls['developer'].invalid).toBe(true);
   });
 
-  it('shows a universal error when the edit URL does not resolve to a game', () => {
+  it('rejects an invalid edit id without sending an API request', () => {
     const fixture = TestBed.createComponent(GameForm);
     fixture.componentRef.setInput('id', 'not-a-real-id');
     fixture.detectChanges();
 
     const text = (fixture.nativeElement as HTMLElement).textContent;
-    expect(text).toContain('Unable to load the requested game.');
+    expect(text).toContain('The game URL contains an invalid id.');
+    expect(api.getGame).not.toHaveBeenCalled();
+  });
+
+  it.each(['0', '-1', '2147483648', 'NaN'])('rejects the out-of-range edit id %s', (id) => {
+    const fixture = TestBed.createComponent(GameForm);
+    fixture.componentRef.setInput('id', id);
+    fixture.detectChanges();
+
+    expect(api.getGame).not.toHaveBeenCalled();
   });
 
   it('returns to the catalogue page the user came from after saving', async () => {

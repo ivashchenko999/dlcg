@@ -51,7 +51,10 @@ export class GameForm implements OnInit {
     });
 
     const id = this.gameId();
-    if (id !== null) {
+    if (id === null) {
+      this.error.set('The game URL contains an invalid id.');
+      this.form.disable();
+    } else if (id !== undefined) {
       this.loading.set(true);
       this.api.getGame(id).subscribe({
         next: (game) => {
@@ -82,10 +85,16 @@ export class GameForm implements OnInit {
     this.error.set(null);
 
     const id = this.gameId();
-    const save$ = id === null ? this.api.createGame(request) : this.api.updateGame(id, request);
+    if (id === null) {
+      this.error.set('The game URL contains an invalid id.');
+      this.saving.set(false);
+      return;
+    }
+    const save$ =
+      id === undefined ? this.api.createGame(request) : this.api.updateGame(id, request);
     save$.subscribe({
       next: (game) => {
-        this.toasts.success(`"${game.title}" was ${id === null ? 'created' : 'updated'}.`);
+        this.toasts.success(`"${game.title}" was ${id === undefined ? 'created' : 'updated'}.`);
         // Catalogue state (page, sort, filters) rides along in the query string,
         // so returning to the list restores the view the user came from.
         void this.router.navigate(['/games'], { queryParamsHandling: 'preserve' });
@@ -102,8 +111,13 @@ export class GameForm implements OnInit {
     return control.invalid && (control.touched || control.dirty);
   }
 
-  private gameId(): number | null {
+  private gameId(): number | null | undefined {
     const raw = this.id();
-    return raw === undefined ? null : Number(raw);
+    if (raw === undefined) {
+      return undefined;
+    }
+
+    const id = Number(raw);
+    return Number.isInteger(id) && id > 0 && id <= 2_147_483_647 ? id : null;
   }
 }

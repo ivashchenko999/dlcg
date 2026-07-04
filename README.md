@@ -30,14 +30,15 @@ layers.
 - Search games by title with debounced, cancellable requests.
 - Filter the catalogue by genre.
 - Sort by title, genre, developer, release date, or price, with the active column highlighted.
-- Perform filtering, sorting, and pagination on the server against indexed columns.
+- Perform filtering, sorting, and pagination on the server, with indexes supporting sortable
+  columns.
 - Cache catalogue responses server-side and invalidate the cache on every write.
 - Preserve catalogue state in shareable URL query parameters.
 - Create, edit, and delete games with client- and server-side validation.
 - Restore state correctly with browser Back and Forward navigation.
 - Display reusable confirmation dialogs, toast notifications, loading states, and errors.
 - Handle invalid routes with a dedicated lazy-loaded 404 page.
-- Validate API responses at the frontend boundary.
+- Validate the paginated API response envelope at the frontend boundary.
 - Run backend and frontend checks through GitHub Actions.
 - Deploy versioned releases to Azure with a post-deployment smoke check.
 
@@ -118,12 +119,12 @@ sequenceDiagram
         else execute query
             Ctl->>Ctl: validate GameQuery, otherwise 400 Problem Details
             Ctl->>Svc: GetAllAsync(query, cancellationToken)
-            Svc->>Db: WHERE + ORDER BY + OFFSET/FETCH over indexed columns
+            Svc->>Db: WHERE + ORDER BY + OFFSET/FETCH (sortable columns indexed)
             Db-->>Svc: one page of rows + total count
             Svc-->>Ctl: PagedResult of GameDto
             Ctl-->>Api: 200 JSON, stored in the output cache
         end
-        Api-->>List: runtime-validated PagedResult
+        Api-->>List: runtime-validated PagedResult envelope
     end
     List->>User: table, badges, and pagination re-render
 ```
