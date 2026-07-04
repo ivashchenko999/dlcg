@@ -1,12 +1,13 @@
 name: Deploy
 
-# Release-style deployments: pushing a version tag (v1.0.0, v1.1.0, …)
-# releases that commit to production. The Actions tab remains available
-# as a manual fallback. Regular pushes to main only run CI.
+# Release Please calls this workflow after creating a GitHub Release. Pushing
+# a version tag (v1.0.0, v1.1.0, …) or using the Actions tab also works.
+# Regular pushes to main only run CI and prepare the release pull request.
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+  workflow_call:
 
 concurrency:
   group: deploy

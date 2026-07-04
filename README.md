@@ -4,7 +4,7 @@
 [![Deploy](https://github.com/ivashchenko999/dlcg/actions/workflows/deploy.yml/badge.svg)](https://github.com/ivashchenko999/dlcg/actions/workflows/deploy.yml)
 
 **Live demo:** https://gamecatalog-ivashchenko.azurewebsites.net
-(Azure App Service + Azure SQL Database; deployed automatically from `main` by GitHub Actions.
+(Azure App Service + Azure SQL Database; released through versioned GitHub Releases.
 Both run on Basic tiers with Always On enabled, so the demo responds without cold starts.)
 
 A full-stack catalogue application for browsing and maintaining video game data. The project
@@ -39,7 +39,7 @@ layers.
 - Handle invalid routes with a dedicated lazy-loaded 404 page.
 - Validate API responses at the frontend boundary.
 - Run backend and frontend checks through GitHub Actions.
-- Deploy continuously to Azure with a post-deployment smoke check.
+- Deploy versioned releases to Azure with a post-deployment smoke check.
 
 ## Technology
 
@@ -421,15 +421,34 @@ push to `main`.
 
 ## Deployment
 
-Deployments follow a release flow instead of firing on every push. Pushing a version tag
-releases that commit to production:
+Deployments follow a release flow instead of firing on every push. Release Please reads
+[Conventional Commits](https://www.conventionalcommits.org/) on `main` and maintains a release
+pull request containing the next Semantic Version and generated changelog. Merging that pull
+request creates the version tag and GitHub Release, then deploys that exact version.
+
+The version increment is derived from the commit type:
+
+| Commit | Version change | Example |
+| --- | --- | --- |
+| `fix:` | Patch (`1.0.0` → `1.0.1`) | Backwards-compatible bug fix |
+| `feat:` | Minor (`1.0.0` → `1.1.0`) | Backwards-compatible feature |
+| `feat!:` or `BREAKING CHANGE:` | Major (`1.0.0` → `2.0.0`) | Breaking API or behaviour change |
+| `docs:`, `style:`, `test:`, `ci:`, `chore:` | No release by itself | Internal or documentation-only change |
+
+The normal release procedure is therefore:
+
+1. Merge conventional commits into `main`; CI runs and the release pull request is updated.
+2. Review and merge the release pull request when the accumulated changes are ready.
+3. Release Please creates `v1.0.0`, `v1.1.0`, and so on; deployment starts automatically.
+
+For recovery or an explicitly manual release, an existing commit can still be tagged directly:
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0.1 <commit>
+git push origin v1.0.1
 ```
 
-The deploy workflow can also be started manually from the GitHub Actions tab. Either way it:
+The deploy workflow can also be started manually from the GitHub Actions tab. Every deployment:
 
 1. Re-runs the frontend quality gate and backend tests.
 2. Publishes the API and bundles the Angular production build into its `wwwroot`.
