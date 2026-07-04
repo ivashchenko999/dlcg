@@ -1,4 +1,5 @@
 import type { FormControl } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -201,6 +202,7 @@ describe('GamesList URL state', () => {
   });
 
   it('clears stale rows when a query reload fails', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const harness = await RouterTestingHarness.create('/games');
     const component = routeComponent(harness) as {
       games(): unknown[];
@@ -215,9 +217,24 @@ describe('GamesList URL state', () => {
 
     expect(component.games()).toEqual([]);
     expect(component.totalCount()).toBe(0);
-    expect(component.error()).toBe('Failed to load games. Is the backend running?');
+    expect(component.error()).toBe(
+      'Failed to load games. The server returned an unexpected response.',
+    );
     harness.detectChanges();
     expect(harness.routeNativeElement?.querySelector('table')).toBeNull();
     expect(harness.routeNativeElement?.textContent).not.toContain('No games match');
+    consoleError.mockRestore();
+  });
+
+  it('suggests checking the backend only for connectivity failures', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    api.getGames.mockImplementationOnce(() =>
+      throwError(() => new HttpErrorResponse({ status: 0 })),
+    );
+    const harness = await RouterTestingHarness.create('/games');
+    const component = routeComponent(harness) as { error(): string | null };
+
+    expect(component.error()).toBe('Failed to load games. Is the backend running?');
+    consoleError.mockRestore();
   });
 });

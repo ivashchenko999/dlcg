@@ -111,7 +111,13 @@ export class GameForm implements OnInit {
         // so returning to the list restores the view the user came from.
         void this.router.navigate(['/games'], { queryParamsHandling: 'preserve' });
       },
-      error: () => {
+      error: (error: unknown) => {
+        console.error('Failed to save the game', error);
+        if (error instanceof HttpErrorResponse && error.status === 404) {
+          // The game was deleted while the form was open; retrying cannot succeed.
+          void this.router.navigateByUrl('/not-found', { replaceUrl: true });
+          return;
+        }
         this.error.set('Failed to save the game. Please try again.');
         this.saving.set(false);
       },

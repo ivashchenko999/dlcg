@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -87,12 +88,20 @@ export class GamesList {
         }),
         switchMap((query) =>
           this.api.getGames(query).pipe(
-            catchError(() => {
+            catchError((error: unknown) => {
+              console.error('Failed to load games', error);
               // The URL already represents the failed query. Do not leave rows from
               // the previous query visible as if they matched the current state.
               this.games.set([]);
               this.totalCount.set(0);
-              this.error.set('Failed to load games. Is the backend running?');
+              // Status 0 means the request never reached the server; anything else
+              // (an HTTP error or a malformed 200 body) is a server-side problem.
+              const offline = error instanceof HttpErrorResponse && error.status === 0;
+              this.error.set(
+                offline
+                  ? 'Failed to load games. Is the backend running?'
+                  : 'Failed to load games. The server returned an unexpected response.',
+              );
               this.loading.set(false);
               return EMPTY;
             }),
@@ -231,7 +240,8 @@ export class GamesList {
         this.toasts.success(`"${game.title}" was deleted.`);
         this.load();
       },
-      error: () => {
+      error: (error: unknown) => {
+        console.error(`Failed to delete game ${String(game.id)}`, error);
         this.toasts.error(`Failed to delete "${game.title}".`);
       },
     });
