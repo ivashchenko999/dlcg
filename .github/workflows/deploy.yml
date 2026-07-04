@@ -23,11 +23,14 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Build frontend
+      - name: Verify and build frontend
         working-directory: frontend
         run: |
           npm ci
-          npm run build
+          npm run check
+
+      - name: Test backend
+        run: dotnet test backend/GameCatalog.slnx --configuration Release
 
       - name: Publish backend
         run: dotnet publish backend/src/GameCatalog.Api -c Release -o publish
@@ -43,3 +46,22 @@ jobs:
           app-name: gamecatalog-ivashchenko
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: publish
+
+      - name: Verify deployed application
+        shell: bash
+        run: |
+          for attempt in {1..18}; do
+            if curl --fail --silent --show-error --max-time 15 \
+              https://gamecatalog-ivashchenko.azurewebsites.net/health \
+              && curl --fail --silent --show-error --max-time 15 \
+              https://gamecatalog-ivashchenko.azurewebsites.net/ > /dev/null; then
+              echo "Deployment is healthy."
+              exit 0
+            fi
+
+            echo "Health check attempt ${attempt} failed; retrying in 10 seconds."
+            sleep 10
+          done
+
+          echo "Deployment did not become healthy."
+          exit 1

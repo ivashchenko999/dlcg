@@ -9,7 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 builder.Services.AddDbContext<GameCatalogDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("GameCatalog")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("GameCatalog"),
+        sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(
+            maxRetryCount: 10,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null)));
 
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
@@ -18,6 +23,7 @@ builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddOpenApi();
+builder.Services.AddHealthChecks();
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options => options.AddPolicy("Frontend", policy =>
@@ -31,10 +37,21 @@ app.UseExceptionHandler();
 // In production this is opt-in via the Database:MigrateOnStartup setting.
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
 {
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<GameCatalogDbContext>();
-    await db.Database.MigrateAsync();
-    await DbSeeder.SeedAsync(db);
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<GameCatalogDbContext>();
+        await db.Database.MigrateAsync();
+        await DbSeeder.SeedAsync(db);
+    }
+    catch (Exception exception)
+    {
+        // A transient database outage must not prevent the web process from starting.
+        // Database requests will keep using the SQL retry policy configured above.
+        app.Logger.LogError(
+            exception,
+            "Database migration or seeding failed during startup. Continuing in degraded mode.");
+    }
 }
 
 app.UseCors("Frontend");
@@ -49,6 +66,9 @@ app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "Game Ca
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
+// Liveness deliberately excludes external dependencies. Azure can distinguish a
+// running application from a database outage without restarting a healthy process.
+app.MapHealthChecks("/health");
 app.MapControllers();
 // Restrict fallback to non-API paths so unrecognised /api/* routes return 404.
 app.MapFallbackToFile("{*path:regex(^(?!api/).*$)}", "index.html");
