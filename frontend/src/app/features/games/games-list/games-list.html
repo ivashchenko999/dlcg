@@ -70,27 +70,19 @@
           <thead>
             <tr>
               <th [attr.aria-sort]="sortAria('title')">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-link text-body fw-semibold text-decoration-none p-0"
-                  (click)="sortBy('title')"
-                >
+                <button type="button" [class]="sortButtonClass('title')" (click)="sortBy('title')">
                   Title<i aria-hidden="true" [class]="sortIcon('title')"></i>
                 </button>
               </th>
               <th [attr.aria-sort]="sortAria('genre')">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-link text-body fw-semibold text-decoration-none p-0"
-                  (click)="sortBy('genre')"
-                >
+                <button type="button" [class]="sortButtonClass('genre')" (click)="sortBy('genre')">
                   Genre<i aria-hidden="true" [class]="sortIcon('genre')"></i>
                 </button>
               </th>
               <th [attr.aria-sort]="sortAria('developer')">
                 <button
                   type="button"
-                  class="btn btn-sm btn-link text-body fw-semibold text-decoration-none p-0"
+                  [class]="sortButtonClass('developer')"
                   (click)="sortBy('developer')"
                 >
                   Developer<i aria-hidden="true" [class]="sortIcon('developer')"></i>
@@ -99,18 +91,14 @@
               <th [attr.aria-sort]="sortAria('releaseDate')">
                 <button
                   type="button"
-                  class="btn btn-sm btn-link text-body fw-semibold text-decoration-none p-0"
+                  [class]="sortButtonClass('releaseDate')"
                   (click)="sortBy('releaseDate')"
                 >
-                  Released<i aria-hidden="true" [class]="sortIcon('releaseDate')"></i>
+                  Release Date<i aria-hidden="true" [class]="sortIcon('releaseDate')"></i>
                 </button>
               </th>
               <th class="text-end" [attr.aria-sort]="sortAria('price')">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-link text-body fw-semibold text-decoration-none p-0"
-                  (click)="sortBy('price')"
-                >
+                <button type="button" [class]="sortButtonClass('price')" (click)="sortBy('price')">
                   Price<i aria-hidden="true" [class]="sortIcon('price')"></i>
                 </button>
               </th>

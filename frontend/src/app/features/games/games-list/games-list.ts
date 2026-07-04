@@ -192,6 +192,11 @@ export class GamesList {
     return this.query().order === 'asc' ? 'bi bi-sort-up ms-1' : 'bi bi-sort-down ms-1';
   }
 
+  protected sortButtonClass(field: GameSortField): string {
+    const base = 'btn btn-sm btn-link fw-semibold text-decoration-none p-0';
+    return this.query().sort === field ? `${base} text-primary` : `${base} text-body`;
+  }
+
   protected confirmDelete(game: Game): void {
     const modal = this.modalService.open(ConfirmModal);
     const component = modal.componentInstance as ConfirmModal;
