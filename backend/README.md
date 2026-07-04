@@ -131,6 +131,12 @@ erDiagram
 `GlobalExceptionHandler` converts known domain errors into RFC-compatible Problem Details. The
 framework handles model-validation failures and unhandled server errors consistently.
 
+Health checks are split by question. `/health` answers "is the process alive?" and deliberately
+excludes external dependencies, so a database outage never causes the platform to restart a
+healthy process. `/health/ready` answers "can the application serve requests?" and verifies
+database connectivity; it turns a deployment whose startup migration failed (the degraded-mode
+path in `Program.cs`) into a visible `503` instead of a silently broken site.
+
 ## Local Configuration
 
 ASP.NET Core loads the standard `appsettings` files, environment variables, and command-line
@@ -147,8 +153,9 @@ The tests instantiate services against in-memory SQLite. Unlike EF Core's non-re
 InMemory provider, SQLite exercises SQL translation, ordering, constraints, and relational
 behaviour without requiring a SQL Server test instance.
 
-Current tests cover CRUD behaviour, validation contracts, filtering, paging, sorting, stable
-tie-breakers, and unknown references.
+Current tests cover CRUD behaviour, validation contracts, filtering, paging, every sort field
+in both directions, stable tie-breakers, unknown references on both create and update, and the
+exception-to-Problem-Details mapping.
 
 ```bash
 dotnet test

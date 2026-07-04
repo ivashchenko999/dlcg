@@ -460,14 +460,18 @@ The deploy workflow can also be started manually from the GitHub Actions tab. Ev
 The demo runs on an Azure App Service Basic (B1) plan with Always On enabled and an Azure SQL
 Basic database, so neither the application nor the database pauses between requests. On
 startup the application applies pending EF Core migrations (enabled in production through the
-`Database:MigrateOnStartup` setting), which keeps deployments self-contained. The API serves
+`Database:MigrateOnStartup` setting), which keeps deployments self-contained. Two health
+endpoints separate the operational questions: `/health` reports process liveness only, while
+`/health/ready` also verifies database connectivity, so a deployment whose startup migration
+failed is visible immediately instead of hiding behind a green liveness check. The API serves
 the Angular application itself, so one site hosts the whole product:
 
 | Resource | URL |
 | --- | --- |
 | Application | https://gamecatalog-ivashchenko.azurewebsites.net |
 | Swagger UI | https://gamecatalog-ivashchenko.azurewebsites.net/swagger |
-| Health probe | https://gamecatalog-ivashchenko.azurewebsites.net/health |
+| Liveness probe | https://gamecatalog-ivashchenko.azurewebsites.net/health |
+| Readiness probe | https://gamecatalog-ivashchenko.azurewebsites.net/health/ready |
 
 Swagger UI stays enabled in production intentionally: the demo API is public, unauthenticated
 sample data, and interactive documentation makes the assignment easier to review.
