@@ -1,6 +1,12 @@
 # Video Game Catalogue
 
 [![CI](https://github.com/ivashchenko999/dlcg/actions/workflows/ci.yml/badge.svg)](https://github.com/ivashchenko999/dlcg/actions/workflows/ci.yml)
+[![Deploy](https://github.com/ivashchenko999/dlcg/actions/workflows/deploy.yml/badge.svg)](https://github.com/ivashchenko999/dlcg/actions/workflows/deploy.yml)
+
+**Live demo:** https://gamecatalog-ivashchenko.azurewebsites.net
+(Azure App Service + Azure SQL Database; deployed automatically from `main` by GitHub Actions.
+Hosted on free tiers — the first request after a period of inactivity may take a few seconds
+while the serverless database resumes.)
 
 A full-stack catalogue application for browsing and maintaining video game data. The project
 combines a modern Angular frontend with a typed ASP.NET Core API, server-side filtering,
