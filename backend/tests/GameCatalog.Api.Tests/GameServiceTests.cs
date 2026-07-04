@@ -186,6 +186,23 @@ public class GameServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task UpdateAsync_UnknownGenre_ThrowsAndLeavesGameUnchanged()
+    {
+        var seeded = await AddGamesAsync(
+            new Game { Title = "Hades", Developer = "Supergiant", GenreId = ActionGenreId });
+        var service = CreateService();
+        var request = ValidRequest();
+        request.GenreId = 999;
+
+        await Assert.ThrowsAsync<UnknownGenreException>(() => service.UpdateAsync(seeded[0].Id, request));
+
+        using var db = _dbFactory.CreateContext();
+        var game = db.Games.Single();
+        Assert.Equal("Hades", game.Title);
+        Assert.Equal(ActionGenreId, game.GenreId);
+    }
+
+    [Fact]
     public async Task DeleteAsync_RemovesGame()
     {
         var seeded = await AddGamesAsync(
