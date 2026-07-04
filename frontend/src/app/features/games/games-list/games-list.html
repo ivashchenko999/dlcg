@@ -145,13 +145,14 @@
 
       @if (totalCount() > pageSize) {
         <div class="d-flex justify-content-center mt-3">
+          <!-- A three-page rotating window stays compact on phone-sized screens;
+               the first and last pages remain reachable as numbers next to the ellipses. -->
           <ngb-pagination
             [collectionSize]="totalCount()"
             [pageSize]="pageSize"
             [page]="query().page"
-            [maxSize]="5"
+            [maxSize]="3"
             [rotate]="true"
-            [boundaryLinks]="true"
             (pageChange)="changePage($event)"
           />
         </div>

@@ -166,8 +166,8 @@ describe('GamesList URL state', () => {
     const items = Array.from(
       harness.routeNativeElement?.querySelectorAll('ngb-pagination li') ?? [],
     );
-    // « ‹ 1 … five-page window … 100 › » — instead of one button per page.
-    expect(items.length).toBeLessThanOrEqual(13);
+    // ‹ 1 … three-page window … 100 › — instead of one button per page.
+    expect(items.length).toBeLessThanOrEqual(9);
     expect(items.some((item) => item.textContent.includes('...'))).toBe(true);
   });
 
