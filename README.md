@@ -421,9 +421,15 @@ push to `main`.
 
 ## Deployment
 
-Deployments are opt-in rather than automatic on every push: the deploy workflow runs when the
-head commit message contains `[deploy]`, or when it is started manually from the GitHub Actions
-tab. Either way it:
+Deployments follow a release flow instead of firing on every push. Pushing a version tag
+releases that commit to production:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The deploy workflow can also be started manually from the GitHub Actions tab. Either way it:
 
 1. Re-runs the frontend quality gate and backend tests.
 2. Publishes the API and bundles the Angular production build into its `wwwroot`.
