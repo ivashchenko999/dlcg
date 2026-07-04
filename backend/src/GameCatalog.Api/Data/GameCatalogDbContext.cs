@@ -32,6 +32,12 @@ public class GameCatalogDbContext(DbContextOptions<GameCatalogDbContext> options
             game.Property(g => g.Developer).HasMaxLength(200);
             game.Property(g => g.Price).HasPrecision(10, 2);
 
+            // Sortable catalogue columns; the GenreId foreign key is indexed by convention.
+            game.HasIndex(g => g.Title);
+            game.HasIndex(g => g.Developer);
+            game.HasIndex(g => g.ReleaseDate);
+            game.HasIndex(g => g.Price);
+
             game.HasOne(g => g.Genre)
                 .WithMany(g => g.Games)
                 .HasForeignKey(g => g.GenreId)
