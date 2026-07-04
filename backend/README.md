@@ -7,21 +7,38 @@ For installation and platform-specific setup, see the [repository README](../REA
 
 ## Request Flow
 
-```text
-HTTP request
-    ↓
-Controller and model binding
-    ↓
-Output cache (GET requests)
-    ↓ on cache miss
-Typed contract validation
-    ↓
-Application service
-    ↓
-EF Core query / SQL Server
-    ↓
-DTO or Problem Details response
+Every outcome a request can take, including both error branches:
+
+```mermaid
+flowchart TD
+    A["HTTP request"] --> B["Routing and CORS"]
+    B --> C{"Output cache<br/>(GET games and genres)"}
+    C -- "hit" --> H["Cached JSON response"]
+    C -- "miss" --> D{"Model binding and<br/>data-annotation validation"}
+    D -- "invalid" --> E["400 validation Problem Details"]
+    D -- "valid" --> F["Controller action"]
+    F -- "unknown id" --> N["404"]
+    F --> G["GameService / GenreService"]
+    G -- "unknown genre reference" --> M["400 Problem Details<br/>via GlobalExceptionHandler"]
+    G --> I["EF Core: filter, sort,<br/>count, then page"]
+    I --> J[("SQL Server")]
+    J --> K["GameDto / PagedResult projection"]
+    K --> L["200 JSON, stored in the output cache"]
 ```
+
+### Query Parameter Journey
+
+`GET /api/games` binds the query string into the typed `GameQuery` contract. Every parameter
+is bounded before it can reach SQL:
+
+| Parameter | Bound by | Effect in SQL |
+| --- | --- | --- |
+| `search` | `StringLength(200)` | `WHERE Title LIKE '%…%'` |
+| `genre` | `StringLength(100)` | `WHERE Genre.Name = …` |
+| `sort` | `GameSortField` enum | `ORDER BY` column choice |
+| `order` | `SortDirection` enum | `ASC` / `DESC` |
+| `page` | `Range(1, 10000)` | `OFFSET (page-1) * pageSize` |
+| `pageSize` | `Range(1, 100)` | `FETCH NEXT pageSize` |
 
 ## Source Structure
 
@@ -65,11 +82,37 @@ sorting, and paging results isolated. Successful create, update, and delete oper
 `games` cache tag before returning. The cache is in-process, requires no Redis service, and is
 also used by requests made through Swagger UI.
 
+```mermaid
+flowchart LR
+    W["POST / PUT / DELETE<br/>/api/games"] --> S["GameService"]
+    S --> DB[("SQL Server")]
+    DB --> E["evict cache tag: games"]
+    E --> R["201 / 200 / 204 response"]
+    R -.-> G["next GET rebuilds<br/>the cache entry"]
+```
+
 ### Data and Entities
 
 `GameCatalogDbContext` configures SQL precision, lengths, indexes, and relationships. EF Core
 migrations define the production schema. `DbSeeder` inserts development sample data only when
 the catalogue is empty.
+
+```mermaid
+erDiagram
+    Genre ||--o{ Game : "delete is restricted"
+    Game {
+        int Id PK
+        string Title "max 200, indexed"
+        string Developer "max 200, indexed"
+        DateOnly ReleaseDate "indexed"
+        decimal Price "precision 10 scale 2, indexed"
+        int GenreId FK "indexed by convention"
+    }
+    Genre {
+        int Id PK
+        string Name "max 100, unique"
+    }
+```
 
 ### Infrastructure
 

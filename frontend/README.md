@@ -59,6 +59,30 @@ No global state library is required for the current application size:
 
 This keeps state ownership explicit while preserving shareable URLs and browser navigation.
 
+## Data Flow
+
+Catalogue state travels in one direction. User actions never mutate the table directly;
+they update the URL, and the URL drives everything else. Browser navigation and shared
+links enter the same loop at the same point:
+
+```mermaid
+flowchart TD
+    U["User action:<br/>search (debounced 300 ms), genre select,<br/>sort header, page change"] -->|"router.navigate<br/>merges query params"| Q["URL query string<br/>/games?q&genre&sort&order&page"]
+    B["Back / Forward,<br/>bookmark, shared link"] --> Q
+    Q -->|"queryParamMap emits"| P["Parse and normalise;<br/>invalid values fall back to defaults"]
+    P --> S["query signal"]
+    S --> G["GameApi.getGames(query)"]
+    G -->|"fresh entry"| C["client LRU cache<br/>(60 s, 50 entries)"]
+    G -->|"miss"| H["GET /api/games<br/>(switchMap cancels stale requests)"]
+    H --> V["runtime shape validation<br/>of PagedResult"]
+    C --> ST["games / totalCount signals"]
+    V --> ST
+    ST --> T["table, badges, and<br/>pagination re-render"]
+```
+
+Create, update, and delete calls clear the client cache, so the next catalogue query always
+reflects the write (the backend evicts its output cache the same way).
+
 ## API Boundary
 
 `GameApi` is the only class that constructs backend URLs. Components receive typed observables

@@ -91,6 +91,73 @@ The API is separated into controllers, contracts, services, entities, and data a
 
 In Development, the backend applies migrations and seeds sample catalogue data automatically.
 
+## Data Flow
+
+How a catalogue query travels through the system, including both cache layers:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant List as GamesList component
+    participant URL as Router / URL
+    participant Api as GameApi client
+    participant Ctl as GamesController
+    participant Svc as GameService
+    participant Db as SQL Server
+
+    User->>List: type search / pick genre / click header / change page
+    List->>URL: navigate with query parameters
+    URL-->>List: queryParamMap emits the new state
+    List->>Api: getGames(query)
+    alt fresh client cache entry (60 s LRU)
+        Api-->>List: replayed response
+    else request over HTTP
+        Api->>Ctl: GET /api/games?search&genre&sort&order&page&pageSize
+        alt fresh server output-cache entry (60 s)
+            Ctl-->>Api: cached JSON
+        else execute query
+            Ctl->>Ctl: validate GameQuery, otherwise 400 Problem Details
+            Ctl->>Svc: GetAllAsync(query, cancellationToken)
+            Svc->>Db: WHERE + ORDER BY + OFFSET/FETCH over indexed columns
+            Db-->>Svc: one page of rows + total count
+            Svc-->>Ctl: PagedResult of GameDto
+            Ctl-->>Api: 200 JSON, stored in the output cache
+        end
+        Api-->>List: runtime-validated PagedResult
+    end
+    List->>User: table, badges, and pagination re-render
+```
+
+Writes follow the same path in reverse and keep both caches honest:
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Form as GameForm / GamesList
+    participant Api as GameApi client
+    participant Ctl as GamesController
+    participant Svc as GameService
+    participant Db as SQL Server
+
+    User->>Form: save the form / confirm a delete
+    Form->>Api: createGame / updateGame / deleteGame
+    Api->>Ctl: POST, PUT, or DELETE /api/games
+    Ctl->>Ctl: validate SaveGameRequest, otherwise 400
+    Ctl->>Svc: typed request
+    Svc->>Db: INSERT / UPDATE / DELETE
+    Db-->>Svc: persisted row
+    Svc-->>Ctl: GameDto
+    Ctl->>Ctl: evict the games output-cache tag
+    Ctl-->>Api: 201 / 200 / 204
+    Api->>Api: clear the client-side games cache
+    Api-->>Form: typed result
+    Form->>User: toast notification + refreshed list
+```
+
+The domain-level READMEs below contain focused diagrams: the backend request pipeline and
+entity model, and the frontend URL-driven state loop.
+
 ## Repository Structure
 
 ```text
