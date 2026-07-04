@@ -30,8 +30,9 @@ layers.
 
 - Search games by title with debounced, cancellable requests.
 - Filter the catalogue by genre.
-- Sort by title, genre, developer, release date, or price.
-- Perform filtering, sorting, and pagination on the server.
+- Sort by title, genre, developer, release date, or price, with the active column highlighted.
+- Perform filtering, sorting, and pagination on the server against indexed columns.
+- Cache catalogue responses server-side and invalidate the cache on every write.
 - Preserve catalogue state in shareable URL query parameters.
 - Create, edit, and delete games with client- and server-side validation.
 - Restore state correctly with browser Back and Forward navigation.
@@ -39,6 +40,7 @@ layers.
 - Handle invalid routes with a dedicated lazy-loaded 404 page.
 - Validate API responses at the frontend boundary.
 - Run backend and frontend checks through GitHub Actions.
+- Deploy continuously to Azure with a post-deployment smoke check.
 
 ## Technology
 
@@ -78,8 +80,12 @@ The API is separated into controllers, contracts, services, entities, and data a
 - Contracts define typed request and response boundaries.
 - Services contain query composition and catalogue operations.
 - EF Core translates filters, sorting, projection, and pagination to SQL.
+- Every sortable column is covered by a database index.
 - Every paginated sort uses a unique `Id` tie-breaker for deterministic results.
-- Data annotations reject invalid paging and game payloads before service execution.
+- Data annotations reject invalid paging, oversized filters, and invalid game payloads
+  before service execution.
+- Output caching stores catalogue reads for 60 seconds and genres for 10 minutes; every
+  create, update, and delete evicts the affected cache entries by tag.
 - Domain errors are returned as standardized Problem Details responses.
 - Cancellation tokens flow from HTTP requests into EF Core operations.
 
@@ -103,7 +109,7 @@ dlcg/
 │       ├── core/               API clients and application-wide services
 │       ├── features/           Lazy-loaded application features
 │       └── shared/             Reusable components, models, constants, and utilities
-└── .github/workflows/ci.yml
+└── .github/workflows/     CI and Azure deployment pipelines
 ```
 
 ### Architecture Knowledge Map
@@ -280,11 +286,11 @@ with `docker start gamecatalog-sql`.
 
 | Parameter | Description | Default |
 | --- | --- | --- |
-| `search` | Case-insensitive title search | Empty |
-| `genre` | Exact, case-insensitive genre name | Empty |
+| `search` | Case-insensitive title search, up to 200 characters | Empty |
+| `genre` | Exact, case-insensitive genre name, up to 100 characters | Empty |
 | `sort` | `title`, `genre`, `developer`, `releaseDate`, or `price` | `title` |
 | `order` | `asc` or `desc` | `asc` |
-| `page` | One-based page number | `1` |
+| `page` | One-based page number, from 1 to 10 000 | `1` |
 | `pageSize` | Number of records, from 1 to 100 | `10` |
 
 Example:
@@ -310,6 +316,7 @@ Paginated response:
 - Title and developer are limited to 200 characters and cannot contain only whitespace.
 - Price must be between `0` and `10000`.
 - Page and page-size values are bounded before query execution.
+- Search and genre filters are rejected when they exceed the stored column lengths.
 - Invalid requests use ASP.NET Core validation Problem Details.
 - Unknown genre references return HTTP `400`.
 - Missing games return HTTP `404`.
@@ -340,6 +347,29 @@ cd frontend
 npm run check
 ```
 
+## Continuous Integration
+
 The CI workflow verifies .NET formatting and backend tests, then runs strict Angular ESLint,
 the frontend production build, and frontend tests. It runs on every pull request update and every
 push to `main`.
+
+## Deployment
+
+Every push to `main` also triggers the deploy workflow, which:
+
+1. Re-runs the frontend quality gate and backend tests.
+2. Publishes the API and bundles the Angular production build into its `wwwroot`.
+3. Deploys the combined package to Azure App Service.
+4. Verifies the live application with an HTTP smoke check.
+
+The demo runs on Azure App Service with a serverless Azure SQL database, both on free tiers.
+The API serves the Angular application itself, so one site hosts the whole product:
+
+| Resource | URL |
+| --- | --- |
+| Application | https://gamecatalog-ivashchenko.azurewebsites.net |
+| Swagger UI | https://gamecatalog-ivashchenko.azurewebsites.net/swagger |
+| Health probe | https://gamecatalog-ivashchenko.azurewebsites.net/health |
+
+Swagger UI stays enabled in production intentionally: the demo API is public, unauthenticated
+sample data, and interactive documentation makes the assignment easier to review.
