@@ -29,11 +29,13 @@ describe('GameForm', () => {
   const api = {
     getGenres: () => of([{ id: 1, name: 'Action' }]),
     getGame: vi.fn((): Observable<Game> => throwError(() => new Error('Not found'))),
+    createGame: vi.fn((): Observable<Game> => of(existingGame)),
     updateGame: vi.fn((): Observable<Game> => of(existingGame)),
   };
 
   beforeEach(() => {
     api.getGame.mockClear();
+    api.createGame.mockClear();
     api.updateGame.mockClear();
     TestBed.configureTestingModule({
       imports: [GameForm],
@@ -161,5 +163,75 @@ describe('GameForm', () => {
     await vi.waitFor(() => {
       expect(TestBed.inject(Router).url).toBe('/games?page=2&sort=price');
     });
+  });
+
+  it('creates a game through the POST branch and returns to the catalogue', async () => {
+    const fixture = TestBed.createComponent(GameForm);
+    fixture.detectChanges();
+    const component = fixture.componentInstance as unknown as {
+      form: FormGroup;
+      save(): void;
+    };
+    component.form.setValue({
+      title: 'Hades',
+      developer: 'Supergiant Games',
+      genreId: 1,
+      releaseDate: '2020-09-17',
+      price: 24.99,
+    });
+
+    component.save();
+
+    expect(api.createGame).toHaveBeenCalledWith({
+      title: 'Hades',
+      developer: 'Supergiant Games',
+      genreId: 1,
+      releaseDate: '2020-09-17',
+      price: 24.99,
+    });
+    await vi.waitFor(() => {
+      expect(TestBed.inject(Router).url).toBe('/games');
+    });
+  });
+
+  it('unlocks the form and preserves its values after a save failure', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    api.updateGame.mockImplementationOnce(() => throwError(() => new Error('Unavailable')));
+    const fixture = TestBed.createComponent(GameForm);
+    fixture.componentRef.setInput('id', '7');
+    api.getGame.mockImplementationOnce(() => of(existingGame));
+    fixture.detectChanges();
+    const component = fixture.componentInstance as unknown as {
+      form: FormGroup;
+      saving(): boolean;
+      error(): string | null;
+      save(): void;
+    };
+
+    component.save();
+
+    expect(component.saving()).toBe(false);
+    expect(component.error()).toBe('Failed to save the game. Please try again.');
+    expect(component.form.controls['title'].value).toBe('Hades');
+    expect(consoleError).toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
+  it('routes a save-time 404 to not-found', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    api.getGame.mockImplementationOnce(() => of(existingGame));
+    api.updateGame.mockImplementationOnce(() =>
+      throwError(() => new HttpErrorResponse({ status: 404 })),
+    );
+    const harness = await RouterTestingHarness.create();
+    const component = await harness.navigateByUrl('/games/7/edit', GameForm);
+    harness.detectChanges();
+
+    (component as unknown as { save(): void }).save();
+
+    await vi.waitFor(() => {
+      expect(TestBed.inject(Router).url).toBe('/not-found');
+    });
+    consoleError.mockRestore();
   });
 });

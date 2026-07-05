@@ -3,9 +3,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { of, throwError } from 'rxjs';
 
 import { GameApi } from '@core/api/game-api';
+import { ToastService } from '@core/services/toast.service';
+import type { Game } from '@shared/models/game.model';
 
 import { GamesList } from './games-list';
 
@@ -18,35 +21,36 @@ function routeComponent(harness: RouterTestingHarness): unknown {
 }
 
 describe('GamesList URL state', () => {
+  const halo: Game = {
+    id: 1,
+    title: 'Halo',
+    developer: 'Bungie',
+    releaseDate: '2001-11-15',
+    price: 59.99,
+    genreId: 1,
+    genreName: 'Action',
+  };
+
   const api = {
-    getGames: vi.fn(() =>
-      of({
-        items: [
-          {
-            id: 1,
-            title: 'Halo',
-            developer: 'Bungie',
-            releaseDate: '2001-11-15',
-            price: 59.99,
-            genreId: 1,
-            genreName: 'Action',
-          },
-        ],
-        totalCount: 11,
-        page: 1,
-        pageSize: 10,
-      }),
-    ),
+    getGames: vi.fn(() => of({ items: [halo], totalCount: 11, page: 1, pageSize: 10 })),
     getGenres: vi.fn(() => of([{ id: 1, name: 'Action' }])),
+    deleteGame: vi.fn(() => of(undefined)),
+  };
+
+  const modal = {
+    open: vi.fn(() => ({ componentInstance: {}, result: Promise.resolve(undefined) })),
   };
 
   beforeEach(() => {
     api.getGames.mockClear();
     api.getGenres.mockClear();
+    api.deleteGame.mockClear();
+    modal.open.mockClear();
     TestBed.configureTestingModule({
       providers: [
         provideRouter([{ path: 'games', component: GamesList }]),
         { provide: GameApi, useValue: api },
+        { provide: NgbModal, useValue: modal },
       ],
     });
   });
@@ -235,6 +239,37 @@ describe('GamesList URL state', () => {
     const component = routeComponent(harness) as { error(): string | null };
 
     expect(component.error()).toBe('Failed to load games. Is the backend running?');
+    consoleError.mockRestore();
+  });
+
+  it('deletes a confirmed game, shows success, and reloads the list', async () => {
+    const harness = await RouterTestingHarness.create('/games');
+    const component = routeComponent(harness) as { confirmDelete(game: Game): void };
+    const toasts = TestBed.inject(ToastService);
+    const requestsBeforeDelete = api.getGames.mock.calls.length;
+
+    component.confirmDelete(halo);
+
+    await vi.waitFor(() => {
+      expect(api.deleteGame).toHaveBeenCalledWith(halo.id);
+    });
+    expect(api.getGames.mock.calls.length).toBeGreaterThan(requestsBeforeDelete);
+    expect(toasts.toasts().at(-1)?.message).toBe('"Halo" was deleted.');
+  });
+
+  it('shows an error toast when deletion fails', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    api.deleteGame.mockImplementationOnce(() => throwError(() => new Error('Unavailable')));
+    const harness = await RouterTestingHarness.create('/games');
+    const component = routeComponent(harness) as { confirmDelete(game: Game): void };
+    const toasts = TestBed.inject(ToastService);
+
+    component.confirmDelete(halo);
+
+    await vi.waitFor(() => {
+      expect(toasts.toasts().at(-1)?.message).toBe('Failed to delete "Halo".');
+    });
+    expect(consoleError).toHaveBeenCalled();
     consoleError.mockRestore();
   });
 });
