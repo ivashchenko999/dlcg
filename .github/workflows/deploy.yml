@@ -1,11 +1,9 @@
 name: Deploy
 
-# Release Please calls this workflow after creating a GitHub Release. Pushing
-# a version tag (v1.0.0, v1.1.0, …) or using the Actions tab also works.
-# Regular pushes to main only run CI and prepare the release pull request.
+# Release Please calls this workflow after creating a GitHub Release. The
+# Actions tab remains available for recovery, but pushing a tag does not deploy:
+# Release Please is the single owner of version tags and GitHub Releases.
 on:
-  push:
-    tags: ["v*"]
   workflow_dispatch:
   workflow_call:
 

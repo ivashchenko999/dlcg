@@ -477,14 +477,12 @@ The normal release procedure is therefore:
 2. Review and merge the release pull request when the accumulated changes are ready.
 3. Release Please creates `v1.0.0`, `v1.1.0`, and so on; deployment starts automatically.
 
-For recovery or an explicitly manual release, an existing commit can still be tagged directly:
+Do not create `v*` tags or GitHub Releases manually. Release Please is the single owner of both;
+creating either before merging its release pull request causes a duplicate-release conflict.
+Pushing a tag directly does not trigger deployment.
 
-```bash
-git tag v1.0.1 <commit>
-git push origin v1.0.1
-```
-
-The deploy workflow can also be started manually from the GitHub Actions tab. Every deployment:
+For recovery, the deploy workflow can be started manually from the GitHub Actions tab without
+creating a tag or Release. Every deployment:
 
 1. Re-runs the frontend quality gate and backend tests.
 2. Publishes the API and bundles the Angular production build into its `wwwroot`.
