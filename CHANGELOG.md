@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/ivashchenko999/dlcg/compare/v1.0.3...v1.1.0) (2026-07-05)
+
+
+### Features
+
+* add database readiness probe at /health/ready ([942cbf7](https://github.com/ivashchenko999/dlcg/commit/942cbf7bb246f65ecb6795b62581ab4dc9d077f4))
+
 ## [1.0.3](https://github.com/ivashchenko999/dlcg/compare/v1.0.2...v1.0.3) (2026-07-05)
 
 
