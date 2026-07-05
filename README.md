@@ -401,6 +401,13 @@ Paginated response:
 
 ## Tests
 
+### Test Plan
+
+For comprehensive manual testing instructions and test cases, see [TEST_PLAN.md](TEST_PLAN.md).
+This document covers all features, edge cases, and quality criteria with 60+ test cases for QA.
+
+### Automated Tests
+
 Run backend tests:
 
 ```bash
