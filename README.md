@@ -440,11 +440,22 @@ cd frontend
 npm run check
 ```
 
-## Continuous Integration
+## Continuous Integration & Deployment
+
+Complete CI/CD pipeline with automated testing, branch protection, and deployment.
+
+**See [docs/CI_CD.md](docs/CI_CD.md) for:**
+- CI/CD workflow details and status checks
+- Branch protection rules and requirements
+- Release and deployment process
+- Health check endpoints and monitoring
+- Troubleshooting guide
 
 The CI workflow verifies .NET formatting and backend tests, then runs strict Angular ESLint,
 the frontend production build, and frontend tests. It runs on every pull request update and every
 push to `main`.
+
+**Branch Protection:** All status checks must pass + 1 approval required before merging to `main`.
 
 ## Deployment
 
