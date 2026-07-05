@@ -26,7 +26,8 @@ Runs on every pull request and push to `main`:
 
 ### 2. Deploy Workflow (`.github/workflows/deploy.yml`)
 
-Runs on GitHub Release creation (triggered by Release Please):
+Runs when called by the successful Release Please workflow. It can also be started manually from
+the Actions tab for recovery; pushing a tag directly does not deploy:
 
 **Pre-Deployment**
 - Re-run all CI checks
@@ -59,7 +60,7 @@ Automated versioning using Release Please:
 1. Release Please reads commits on `main`
 2. Creates/updates release pull request with changelog
 3. Merge release PR → triggers version tag and GitHub Release
-4. Release tag → Deploy workflow runs automatically
+4. Successful release creation → Release workflow calls Deploy automatically
 
 ## Branch Protection Rules
 
@@ -167,12 +168,11 @@ ci: improve test timeout handling
 4. GitHub Release is created automatically
 5. Deploy workflow runs automatically
 
-### Manual Release (If Needed)
+### Recovery Deployment
 
-```bash
-git tag v1.0.1 <commit-hash>
-git push origin v1.0.1
-```
+Run the Deploy workflow from the GitHub Actions tab. Do not manually create `v*` tags or GitHub
+Releases: Release Please owns both, and an existing tag or Release causes the automated release to
+fail with a duplicate-version conflict.
 
 ## Monitoring & Health Checks
 
