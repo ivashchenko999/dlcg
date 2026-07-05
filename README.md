@@ -147,12 +147,12 @@ sequenceDiagram
     Ctl->>Ctl: validate SaveGameRequest, otherwise 400
     Ctl->>Svc: typed request
     Svc->>Db: INSERT / UPDATE / DELETE
-    Db-->>Svc: persisted row
-    Svc-->>Ctl: GameDto
+    Db-->>Svc: write result
+    Svc-->>Ctl: GameDto (create/update) or deletion result (delete)
     Ctl->>Ctl: evict the games output-cache tag with a server-owned token
-    Ctl-->>Api: 201 / 200 / 204
+    Ctl-->>Api: 201/200 with GameDto or 204 without a response body
     Api->>Api: clear the client-side games cache
-    Api-->>Form: typed result
+    Api-->>Form: typed result or successful completion
     Form->>User: toast notification + refreshed list
 ```
 
