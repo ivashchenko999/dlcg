@@ -29,6 +29,38 @@ Angular, Angular Router, and Bootstrap/ng-bootstrap. Unit testing was identified
 Authentication was intentionally not added because it was outside the requested scope. HTTPS is
 provided by the Azure-hosted demo.
 
+## Engineering Focus
+
+Because the target position has a strong backend focus, I intentionally used the small catalogue
+domain to demonstrate backend engineering depth rather than expanding it with unrelated product
+features. Filtering, sorting, and pagination execute server-side through EF Core; deterministic
+ordering and database indexes support reliable paging; validation, Problem Details, cache
+invalidation, health checks, and relational tests make API behaviour explicit and maintainable.
+
+The Angular application complements that backend focus: URL-backed search, filtering, sorting, and
+pagination drive the same typed API contract while preserving browser navigation. This demonstrates
+how frontend state and backend query design can work together cleanly without moving business or
+data-access responsibilities into the UI.
+
+## Full-Stack Capability and Scope Discipline
+
+Swagger, Azure hosting, CI/CD, versioned releases, and automated deployment were not required by
+the assignment. I included them in this take-home deliberately so the submission could demonstrate
+more than isolated code: I can work across frontend, backend, data, testing, delivery, and production
+verification, while taking ownership of the path from a requirement to a running application.
+
+This take-home is an intentional exception to how I treat scope in day-to-day product development.
+In a team environment, I implement the agreed requirements and acceptance criteria rather than
+silently expanding a task with unrequested engineering or product work. I am comfortable proposing
+improvements and explaining their value and trade-offs, but I expect them to be discussed with the
+team and business stakeholders and, when accepted, captured as explicit follow-up work before
+implementation.
+
+The additional work here is therefore evidence of capability, not a preference for scope creep. My
+goal was to make my backend depth and full-stack range visible in a self-contained evaluation, and
+to show that I can be trusted to deliver carefully, communicate engineering choices, and respect
+the boundaries agreed with the team.
+
 ## Engineering Added Beyond the Minimum
 
 ### Complete Catalogue Workflow
