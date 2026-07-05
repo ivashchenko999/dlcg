@@ -403,8 +403,12 @@ Paginated response:
 
 ### Test Plan
 
-For comprehensive manual testing instructions and test cases, see [TEST_PLAN.md](TEST_PLAN.md).
+For comprehensive manual testing instructions and test cases, see [TEST_PLAN.md](docs/TEST_PLAN.md).
 This document covers all features, edge cases, and quality criteria with 60+ test cases for QA.
+
+For API testing results and comprehensive API test plan, see:
+- [API_TEST_PLAN.md](docs/API_TEST_PLAN.md) - 20 detailed API test scenarios
+- [API_TEST_RESULTS.md](docs/API_TEST_RESULTS.md) - 100% test success rate (13/13 tests passed)
 
 ### Automated Tests
 
