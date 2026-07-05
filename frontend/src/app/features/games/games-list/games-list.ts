@@ -56,6 +56,7 @@ const SORT_FIELDS: readonly GameSortField[] = [
     LoadingSpinner,
   ],
   templateUrl: './games-list.html',
+  styleUrl: './games-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GamesList {
@@ -213,7 +214,7 @@ export class GamesList {
   }
 
   protected sortButtonClass(field: GameSortField): string {
-    const base = 'btn btn-sm btn-link fw-semibold text-decoration-none p-0';
+    const base = 'btn btn-sm btn-link fw-semibold text-decoration-none text-nowrap p-0';
     return this.query().sort === field ? `${base} text-primary` : `${base} text-body`;
   }
 

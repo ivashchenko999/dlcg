@@ -1,0 +1,30 @@
+.games-table {
+  width: 100%;
+  min-width: 59rem;
+  table-layout: fixed;
+}
+
+.games-table th {
+  white-space: nowrap;
+}
+
+.games-table .title-column {
+  width: 14rem;
+}
+
+.games-table .genre-column {
+  width: 8rem;
+}
+
+.games-table .developer-column {
+  width: 14rem;
+}
+
+.games-table .release-date-column {
+  width: 9rem;
+}
+
+.games-table .price-column,
+.games-table .actions-column {
+  width: 7rem;
+}
