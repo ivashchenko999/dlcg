@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.3](https://github.com/ivashchenko999/dlcg/compare/v1.0.2...v1.0.3) (2026-07-05)
+
+
+### Bug Fixes
+
+* **frontend:** stop discarding HTTP error details in error handlers ([9bde22c](https://github.com/ivashchenko999/dlcg/commit/9bde22c2aad6eec8faf418ddf4dcefaa90e67725))
+
+
+### Performance Improvements
+
+* **frontend:** enable OnPush change detection in all components ([4ab15e2](https://github.com/ivashchenko999/dlcg/commit/4ab15e2a99639d89e4416d40e65a7386073c6e6c))
+
 ## [1.0.2](https://github.com/ivashchenko999/dlcg/compare/v1.0.1...v1.0.2) (2026-07-04)
 
 
