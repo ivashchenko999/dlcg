@@ -2,7 +2,8 @@
 
 ## Overview
 
-This project implements a comprehensive CI/CD pipeline with GitHub Actions and automated branch protection rules to ensure code quality and stability.
+This project implements a CI/CD pipeline with GitHub Actions. Branch protection is configured in
+the submitted repository's GitHub settings and cannot be verified from repository files alone.
 
 ## CI/CD Workflow
 
@@ -22,7 +23,8 @@ Runs on every pull request and push to `main`:
 - ✅ Production build
 - ✅ Frontend tests (Vitest)
 
-**Status:** All checks must pass before merge
+The workflow exposes two jobs that can be configured as required status checks: `backend` and
+`frontend`. The commands above are steps within those jobs, not separate status checks.
 
 ### 2. Deploy Workflow (`.github/workflows/deploy.yml`)
 
@@ -42,9 +44,8 @@ the Actions tab for recovery; pushing a tag directly does not deploy:
 
 **Post-Deployment**
 - Verify application liveness (`/health`)
-- Verify database readiness (`/health/ready`)
 - Confirm frontend assets load
-- Verify API endpoints respond
+- Verify database-backed API responses (`/api/genres` and `/api/games`)
 
 ### 3. Release Workflow (`.github/workflows/release.yml`)
 
@@ -60,22 +61,23 @@ Automated versioning using Release Please:
 1. Release Please reads commits on `main`
 2. Creates/updates release pull request with changelog
 3. Merge release PR → triggers version tag and GitHub Release
-4. Successful release creation → Release workflow calls Deploy automatically
+4. Release workflow detects the created Release and calls Deploy automatically
 
-## Branch Protection Rules
+## Branch Protection
+
+Branch protection is configured in GitHub settings for the submitted repository. The recommended
+policy is to require a pull request, one approval, and the two CI jobs below before merging. Verify
+the active settings in GitHub rather than inferring them from this document.
 
 ### For `main` Branch
 
-**Status Checks Required** (ALL must pass):
+**CI jobs to configure as required checks:**
 ```
-✅ ci / Verify formatting
-✅ ci / Build and test (backend)
-✅ ci / Lint (frontend)
-✅ ci / Build (frontend)
-✅ ci / Test (frontend)
+backend
+frontend
 ```
 
-**Additional Protection**
+**Recommended additional protection:**
 ```
 ✅ Require pull request before merging
 ✅ Require 1 approval before merge
@@ -85,14 +87,6 @@ Automated versioning using Release Please:
 ✅ Restrict force pushes
 ✅ Restrict deletions
 ```
-
-### What This Means
-
-❌ **Cannot merge** if any check fails  
-❌ **Cannot merge** without approval  
-❌ **Cannot force push** to main  
-❌ **Cannot delete** main branch  
-✅ **Must be up-to-date** with latest main  
 
 ## Quality Metrics
 
@@ -135,7 +129,7 @@ Automated versioning using Release Please:
 4. Create pull request on GitHub
 5. CI checks run automatically
 6. Request review
-7. Merge to `main` (after approval + all checks pass)
+7. Merge to `main` after satisfying the repository's configured protection rules
 
 ### Conventional Commits
 
@@ -166,7 +160,7 @@ ci: improve test timeout handling
 2. Release Please automatically creates release PR
 3. Review and merge release PR
 4. GitHub Release is created automatically
-5. Deploy workflow runs automatically
+5. Release workflow calls the deployment workflow automatically
 
 ### Recovery Deployment
 
@@ -199,7 +193,7 @@ Response: 200 OK (if DB connected), 503 (if not)
 
 ## Troubleshooting CI Failures
 
-### "ci / Verify formatting" Failed
+### `backend` Failed During Formatting
 ```bash
 cd backend
 dotnet format
@@ -208,7 +202,7 @@ git commit -m "style: run dotnet format"
 git push
 ```
 
-### "ci / Build and test" Failed
+### `backend` Failed During Build or Test
 ```bash
 cd backend
 dotnet test
@@ -218,7 +212,7 @@ git commit -m "test: fix failing unit tests"
 git push
 ```
 
-### "ci / Lint" Failed
+### `frontend` Failed During Lint
 ```bash
 cd frontend
 npm run lint
@@ -228,7 +222,7 @@ git commit -m "style: fix linting errors"
 git push
 ```
 
-### "ci / Build" Failed
+### `frontend` Failed During Build
 ```bash
 cd frontend
 npm run build
@@ -238,7 +232,7 @@ git commit -m "fix: resolve build errors"
 git push
 ```
 
-### "ci / Test" Failed
+### `frontend` Failed During Test
 ```bash
 cd frontend
 npm run test:ci

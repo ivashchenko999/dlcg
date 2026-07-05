@@ -440,7 +440,8 @@ npm run check
 
 ## Continuous Integration & Deployment
 
-Complete CI/CD pipeline with automated testing, branch protection, and deployment.
+Complete CI/CD pipeline with automated testing and deployment. Branch protection is configured
+separately in the submitted repository's GitHub settings.
 
 **See [docs/CI_CD.md](docs/CI_CD.md) for:**
 - CI/CD workflow details and status checks
@@ -453,14 +454,16 @@ The CI workflow verifies .NET formatting and backend tests, then runs strict Ang
 the frontend production build, and frontend tests. It runs on every pull request update and every
 push to `main`.
 
-**Branch Protection:** All status checks must pass + 1 approval required before merging to `main`.
+**Branch Protection:** The recommended GitHub configuration requires one approval and both CI jobs
+(`backend` and `frontend`) before merging to `main`; verify the active policy in GitHub settings.
 
 ## Deployment
 
 Deployments follow a release flow instead of firing on every push. Release Please reads
 [Conventional Commits](https://www.conventionalcommits.org/) on `main` and maintains a release
 pull request containing the next Semantic Version and generated changelog. Merging that pull
-request creates the version tag and GitHub Release, then deploys that exact version.
+request lets Release Please create the version tag and GitHub Release; the release workflow then
+calls the deployment workflow for that exact version.
 
 The version increment is derived from the commit type:
 
