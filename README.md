@@ -403,16 +403,14 @@ Paginated response:
 
 ### Test Plan and Results
 
-Complete testing documentation organized in [docs/tests/](docs/tests/):
+The manual testing documentation lives in [docs/tests/](docs/tests/):
 
-**API Testing** (Backend)
-- [API Test Plan](docs/tests/api/TEST_PLAN.md) - 20 detailed API test scenarios
-- [API Test Results](docs/tests/api/TEST_RESULTS.md) - ✅ 100% success rate (13/13 tests passed)
+- [API Test Plan](docs/tests/api/TEST_PLAN.md) — 20 backend API test scenarios.
+- [API Test Results](docs/tests/api/TEST_RESULTS.md) — recorded execution results with a 100%
+  pass rate (13/13 executed tests).
+- [UI Test Plan](docs/tests/ui/TEST_PLAN.md) — 60+ manual test cases for the frontend features.
 
-**UI Testing** (Frontend)
-- [UI Test Plan](docs/tests/ui/TEST_PLAN.md) - 60+ comprehensive feature test cases
-
-See [docs/tests/README.md](docs/tests/README.md) for testing documentation overview.
+See [docs/tests/README.md](docs/tests/README.md) for an overview of the testing documentation.
 
 ### Automated Tests
 

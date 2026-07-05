@@ -26,8 +26,8 @@ Comprehensive API test plan with 20 detailed test scenarios covering:
 - Data integrity and persistence
 
 **Key Sections:**
-- Genres endpoint (GET /api/Genres)
-- Games endpoints (GET, POST, PUT, DELETE /api/Games)
+- Genres endpoint (`GET /api/genres`)
+- Games endpoints (`GET`, `POST`, `PUT`, `DELETE` `/api/games`)
 - Validation and error handling
 - Cross-resource consistency
 - Performance considerations
@@ -99,9 +99,9 @@ Comprehensive manual testing guide for the frontend with 60+ test cases covering
 
 - **Live Application:** https://gamecatalog-ivashchenko.azurewebsites.net
 - **Swagger API Docs:** https://gamecatalog-ivashchenko.azurewebsites.net/swagger
-- **Backend README:** ../../backend/README.md
-- **Frontend README:** ../../frontend/README.md
-- **Main Documentation:** ../ASSIGNMENT.md
+- **Backend README:** [../../backend/README.md](../../backend/README.md)
+- **Frontend README:** [../../frontend/README.md](../../frontend/README.md)
+- **Assignment Coverage:** [../ASSIGNMENT.md](../ASSIGNMENT.md)
 
 ---
 
@@ -117,9 +117,9 @@ Comprehensive manual testing guide for the frontend with 60+ test cases covering
 
 ## Document Versions
 
-- **API_TEST_PLAN.md** v1.0 - Comprehensive API testing scenarios
-- **API_TEST_RESULTS.md** v1.0 - API testing results and validation
-- **UI_TEST_PLAN.md** v1.0 - Frontend and feature testing guide
+- **[api/TEST_PLAN.md](api/TEST_PLAN.md)** v1.0 - Comprehensive API testing scenarios
+- **[api/TEST_RESULTS.md](api/TEST_RESULTS.md)** v1.0 - API testing results and validation
+- **[ui/TEST_PLAN.md](ui/TEST_PLAN.md)** v1.0 - Frontend and feature testing guide
 
 Each document is self-contained and includes:
 - Detailed test objectives
@@ -130,5 +130,4 @@ Each document is self-contained and includes:
 
 ---
 
-**Last Updated:** July 4, 2026  
-**Maintained by:** QA Team
+**Last Updated:** July 4, 2026
