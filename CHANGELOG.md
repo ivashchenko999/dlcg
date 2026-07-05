@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/ivashchenko999/dlcg/compare/v1.1.0...v1.1.1) (2026-07-05)
+
+
+### Bug Fixes
+
+* stabilize game table columns on small screens ([af740dd](https://github.com/ivashchenko999/dlcg/commit/af740dd1d4384137fe823ee3f46ee5bf88a650b9))
+
 ## [1.1.0](https://github.com/ivashchenko999/dlcg/compare/v1.0.3...v1.1.0) (2026-07-05)
 
 
