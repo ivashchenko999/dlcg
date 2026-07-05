@@ -11,6 +11,16 @@ A full-stack catalogue application for browsing and maintaining video game data.
 combines a modern Angular frontend with a typed ASP.NET Core API, server-side filtering,
 deterministic sorting, pagination, validation, and automated tests.
 
+## Candidate Assignment
+
+This repository implements the requested two-page Angular and ASP.NET Core/EF Core catalogue,
+including the optional testing component. The domain remains intentionally focused, while selected
+production-oriented additions demonstrate validation, failure handling, operability, and automated
+delivery without changing the assignment's core purpose.
+
+See [Candidate Assignment Coverage](docs/ASSIGNMENT.md) for the requirement-by-requirement mapping,
+the work completed beyond the requested scope, and the rationale behind those additions.
+
 ## Naming
 
 The repository contains a single product with names appropriate to each technical context:
