@@ -401,14 +401,18 @@ Paginated response:
 
 ## Tests
 
-### Test Plan
+### Test Plan and Results
 
-For comprehensive manual testing instructions and test cases, see [TEST_PLAN.md](docs/TEST_PLAN.md).
-This document covers all features, edge cases, and quality criteria with 60+ test cases for QA.
+Complete testing documentation organized in [docs/tests/](docs/tests/):
 
-For API testing results and comprehensive API test plan, see:
-- [API_TEST_PLAN.md](docs/API_TEST_PLAN.md) - 20 detailed API test scenarios
-- [API_TEST_RESULTS.md](docs/API_TEST_RESULTS.md) - 100% test success rate (13/13 tests passed)
+**API Testing** (Backend)
+- [API Test Plan](docs/tests/api/TEST_PLAN.md) - 20 detailed API test scenarios
+- [API Test Results](docs/tests/api/TEST_RESULTS.md) - ✅ 100% success rate (13/13 tests passed)
+
+**UI Testing** (Frontend)
+- [UI Test Plan](docs/tests/ui/TEST_PLAN.md) - 60+ comprehensive feature test cases
+
+See [docs/tests/README.md](docs/tests/README.md) for testing documentation overview.
 
 ### Automated Tests
 
