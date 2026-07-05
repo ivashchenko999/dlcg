@@ -66,7 +66,15 @@
       </div>
     } @else if (error() === null) {
       <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle mb-0">
+        <table class="games-table table table-striped table-hover align-middle mb-0">
+          <colgroup>
+            <col class="title-column" />
+            <col class="genre-column" />
+            <col class="developer-column" />
+            <col class="release-date-column" />
+            <col class="price-column" />
+            <col class="actions-column" />
+          </colgroup>
           <thead>
             <tr>
               <th [attr.aria-sort]="sortAria('title')">
